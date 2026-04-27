@@ -155,6 +155,8 @@ MonoBehaviour:
   pivotOffset: {x: 0, y: 1.6, z: 0}
   yawSensitivity: 0.16
   pitchSensitivity: 0.11
+  gamepadYawSpeed: 180
+  gamepadPitchSpeed: 130
   minPitch: -35
   maxPitch: 75
   defaultZoomDistance: 7
@@ -274,6 +276,7 @@ MonoBehaviour:
   accelerationSharpness: 14
   decelerationSharpness: 18
   gravity: -25
+  groundedSnapVelocity: -2
   rotationSharpness: 16
   useMouseRaycastRotation: 0
   aimCamera: {fileID: 0}
@@ -294,9 +297,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4db0ee03c6eab6c44aa58c3137f5f85d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SystemicOverload.Phase1.InputProvider
+  inputActionsAsset: {fileID: -944628639613478452, guid: d4d3f6f2765e45d6adb4d684f0c9d1db, type: 3}
+  resourcesFallbackPath: Input/Phase1Gameplay
   normalizeDiagonalInput: 1
   enableDualMouseForwardMove: 1
   dualMouseForwardAmount: 1
+  gamepadLookDeadzone: 0.15
 --- !u!4 &527363985
 Transform:
   m_ObjectHideFlags: 0

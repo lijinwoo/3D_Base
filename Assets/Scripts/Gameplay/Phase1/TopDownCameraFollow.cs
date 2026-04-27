@@ -3,7 +3,7 @@ using UnityEngine;
 namespace SystemicOverload.Phase1
 {
     /// <summary>
-    /// Phase 1 검증을 위한 간단한 Top-down 카메라 추적 컴포넌트입니다.
+    /// Lightweight top-down follow camera for Phase 1 validation scenes.
     /// </summary>
     public sealed class TopDownCameraFollow : MonoBehaviour
     {
@@ -20,19 +20,34 @@ namespace SystemicOverload.Phase1
                 return;
             }
 
-            // 카메라 이동을 보간해 화면 흔들림 없이 타겟을 안정적으로 추적합니다.
             Vector3 targetPosition = followTarget.position + followOffset;
-            float blendFactor = 1.0f - Mathf.Exp(-positionSharpness * Time.deltaTime);
-            transform.position = Vector3.Lerp(transform.position, targetPosition, blendFactor);
+            float deltaTime = Time.deltaTime;
+            if (deltaTime > 0.0f)
+            {
+                float blendFactor = 1.0f - Mathf.Exp(-positionSharpness * deltaTime);
+                transform.position = Vector3.Lerp(transform.position, targetPosition, blendFactor);
+            }
+            else
+            {
+                transform.position = targetPosition;
+            }
 
             if (lockRotation)
             {
                 transform.rotation = Quaternion.Euler(lockedEulerAngles);
+                return;
             }
-            else
+
+            Vector3 lookDirection = followTarget.position - transform.position;
+            if (lookDirection.sqrMagnitude > 0.0001f)
             {
-                transform.LookAt(followTarget.position);
+                transform.rotation = Quaternion.LookRotation(lookDirection.normalized, Vector3.up);
             }
+        }
+
+        private void OnValidate()
+        {
+            positionSharpness = Mathf.Max(0.0f, positionSharpness);
         }
     }
 }

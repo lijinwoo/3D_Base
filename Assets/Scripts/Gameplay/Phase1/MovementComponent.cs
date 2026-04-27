@@ -3,7 +3,7 @@ using UnityEngine;
 namespace SystemicOverload.Phase1
 {
     /// <summary>
-    /// 이동과 회전을 담당하는 Phase 1용 기본 Movement 컴포넌트입니다.
+    /// Basic CharacterController-driven movement and facing for Phase 1.
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(InputProvider))]
@@ -14,10 +14,11 @@ namespace SystemicOverload.Phase1
         [SerializeField] private float accelerationSharpness = 14.0f;
         [SerializeField] private float decelerationSharpness = 18.0f;
         [SerializeField] private float gravity = -25.0f;
+        [SerializeField] private float groundedSnapVelocity = -2.0f;
 
         [Header("Rotation")]
         [SerializeField] private float rotationSharpness = 16.0f;
-        [SerializeField] private bool useMouseRaycastRotation = false;
+        [SerializeField] private bool useMouseRaycastRotation;
         [SerializeField] private Camera aimCamera;
         [SerializeField] private LayerMask groundLayerMask = ~0;
         [SerializeField] private float aimRayMaxDistance = 300.0f;
@@ -35,6 +36,23 @@ namespace SystemicOverload.Phase1
         {
             characterController = GetComponent<CharacterController>();
             inputProvider = GetComponent<InputProvider>();
+            TryResolveOrbitCameraController();
+        }
+
+        private void OnValidate()
+        {
+            moveSpeed = Mathf.Max(0.0f, moveSpeed);
+            accelerationSharpness = Mathf.Max(0.0f, accelerationSharpness);
+            decelerationSharpness = Mathf.Max(0.0f, decelerationSharpness);
+            rotationSharpness = Mathf.Max(0.0f, rotationSharpness);
+            groundedSnapVelocity = Mathf.Min(groundedSnapVelocity, 0.0f);
+            gravity = Mathf.Min(gravity, 0.0f);
+            aimRayMaxDistance = Mathf.Max(0.0f, aimRayMaxDistance);
+
+            if (orbitCameraController == null && aimCamera != null)
+            {
+                orbitCameraController = aimCamera.GetComponent<Phase1OrbitCameraController>();
+            }
         }
 
         private void Update()
@@ -46,8 +64,8 @@ namespace SystemicOverload.Phase1
             }
 
             UpdatePlanarMovement(deltaTime);
-            UpdateVerticalMovement(deltaTime);
             UpdateRotation(deltaTime);
+            UpdateVerticalMovement(deltaTime);
         }
 
         private void UpdatePlanarMovement(float deltaTime)
@@ -55,14 +73,23 @@ namespace SystemicOverload.Phase1
             Camera targetCamera = ResolveAimCamera();
             if (targetCamera == null)
             {
+                currentPlanarVelocity = Vector3.zero;
                 return;
             }
 
             Vector2 moveInput = inputProvider.MoveInput;
 
-            // 카메라 기준 평면 축으로 이동 벡터를 계산해 조작 일관성을 유지합니다.
-            Vector3 cameraForwardOnPlane = Vector3.ProjectOnPlane(targetCamera.transform.forward, Vector3.up).normalized;
-            Vector3 cameraRightOnPlane = Vector3.ProjectOnPlane(targetCamera.transform.right, Vector3.up).normalized;
+            Vector3 cameraForwardOnPlane = Vector3.ProjectOnPlane(targetCamera.transform.forward, Vector3.up);
+            if (cameraForwardOnPlane.sqrMagnitude <= 0.0001f)
+            {
+                cameraForwardOnPlane = Vector3.forward;
+            }
+            else
+            {
+                cameraForwardOnPlane.Normalize();
+            }
+
+            Vector3 cameraRightOnPlane = Vector3.Cross(Vector3.up, cameraForwardOnPlane);
             Vector3 desiredPlanarDirection = cameraForwardOnPlane * moveInput.y + cameraRightOnPlane * moveInput.x;
             Vector3 desiredPlanarVelocity = desiredPlanarDirection * moveSpeed;
 
@@ -77,8 +104,7 @@ namespace SystemicOverload.Phase1
         {
             if (characterController.isGrounded && verticalVelocity < 0.0f)
             {
-                // 지면 접지 상태에서 미세하게 아래로 유지해 들뜸 현상을 방지합니다.
-                verticalVelocity = -2.0f;
+                verticalVelocity = groundedSnapVelocity;
             }
             else
             {
@@ -86,29 +112,26 @@ namespace SystemicOverload.Phase1
             }
 
             Vector3 frameVelocity = currentPlanarVelocity + Vector3.up * verticalVelocity;
-            characterController.Move(frameVelocity * deltaTime);
+            CollisionFlags collisionFlags = characterController.Move(frameVelocity * deltaTime);
+            if ((collisionFlags & CollisionFlags.Below) != 0 && verticalVelocity < groundedSnapVelocity)
+            {
+                verticalVelocity = groundedSnapVelocity;
+            }
         }
 
         private void UpdateRotation(float deltaTime)
         {
-            if (inputProvider == null)
+            if (inputProvider.ShouldAlignCharacterToCamera && TryRotateTowardCameraYaw(deltaTime))
             {
                 return;
             }
 
-            // RMB 입력 중에는 카메라 Yaw와 캐릭터 Yaw를 동기화합니다.
-            if (inputProvider.IsRightMouseHeld && TryRotateTowardCameraYaw(deltaTime))
+            if (inputProvider.ShouldBlockPointerFacing)
             {
                 return;
             }
 
-            // Free Look(LMB) 중에는 캐릭터 방향을 변경하지 않습니다.
-            if (inputProvider.IsLeftMouseHeld)
-            {
-                return;
-            }
-
-            if (useMouseRaycastRotation)
+            if (useMouseRaycastRotation && !inputProvider.IsUsingGamepad)
             {
                 RotateTowardPointer(deltaTime);
             }
@@ -116,16 +139,13 @@ namespace SystemicOverload.Phase1
 
         private bool TryRotateTowardCameraYaw(float deltaTime)
         {
-            if (orbitCameraController == null)
-            {
-                orbitCameraController = FindFirstObjectByType<Phase1OrbitCameraController>();
-            }
-
             Camera targetCamera = ResolveAimCamera();
             if (targetCamera == null)
             {
                 return false;
             }
+
+            TryResolveOrbitCameraController(targetCamera);
 
             float targetYaw = orbitCameraController != null
                 ? orbitCameraController.CurrentYaw
@@ -173,6 +193,20 @@ namespace SystemicOverload.Phase1
 
             aimCamera = Camera.main;
             return aimCamera;
+        }
+
+        private void TryResolveOrbitCameraController(Camera targetCamera = null)
+        {
+            if (orbitCameraController != null)
+            {
+                return;
+            }
+
+            targetCamera ??= ResolveAimCamera();
+            if (targetCamera != null)
+            {
+                orbitCameraController = targetCamera.GetComponent<Phase1OrbitCameraController>();
+            }
         }
     }
 }

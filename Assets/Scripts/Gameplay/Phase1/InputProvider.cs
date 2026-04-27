@@ -1,91 +1,246 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace SystemicOverload.Phase1
 {
     /// <summary>
-    /// 플레이어 입력을 수집해 다른 컴포넌트가 소비하기 쉬운 형태로 제공합니다.
+    /// Samples a dedicated Phase 1 action map and exposes stable gameplay input state.
     /// </summary>
+    [DefaultExecutionOrder(-100)]
     public sealed class InputProvider : MonoBehaviour
     {
+        public enum ControlDeviceKind
+        {
+            None,
+            KeyboardMouse,
+            Gamepad,
+            Other
+        }
+
+        public enum LookDeviceKind
+        {
+            None,
+            Pointer,
+            Gamepad,
+            Other
+        }
+
+        private const string DefaultActionAssetResourcesPath = "Input/Phase1Gameplay";
+        private const string DefaultActionAssetEditorPath = "Assets/Resources/Input/Phase1Gameplay.inputactions";
+        private const string GameplayMapName = "Player";
+        private const string MoveActionName = "Move";
+        private const string LookActionName = "Look";
+        private const string PointerPositionActionName = "PointerPosition";
+        private const string ZoomActionName = "Zoom";
+        private const string PrimaryHoldActionName = "PrimaryHold";
+        private const string SecondaryHoldActionName = "SecondaryHold";
+
+        [Header("Action Asset")]
+        [SerializeField] private InputActionAsset inputActionsAsset;
+        [SerializeField] private string resourcesFallbackPath = DefaultActionAssetResourcesPath;
+
+        [Header("Movement")]
         [SerializeField] private bool normalizeDiagonalInput = true;
         [SerializeField] private bool enableDualMouseForwardMove = true;
         [SerializeField] private float dualMouseForwardAmount = 1.0f;
 
+        [Header("Gamepad")]
+        [SerializeField] private float gamepadLookDeadzone = 0.15f;
+
+        private InputActionAsset runtimeInputActions;
+        private InputActionMap gameplayMap;
+        private InputAction moveAction;
+        private InputAction lookAction;
+        private InputAction pointerPositionAction;
+        private InputAction zoomAction;
+        private InputAction primaryHoldAction;
+        private InputAction secondaryHoldAction;
+        private bool callbacksBound;
+        private bool initializationFailed;
+
+        public Vector2 RawMoveInput { get; private set; }
         public Vector2 MoveInput { get; private set; }
         public Vector2 PointerScreenPosition { get; private set; }
-        public Vector2 LookDelta { get; private set; }
+        public Vector2 LookInput { get; private set; }
         public float ZoomDelta { get; private set; }
-        public bool IsLeftMouseHeld { get; private set; }
-        public bool IsRightMouseHeld { get; private set; }
-        public bool IsDualMouseForwardHeld => IsLeftMouseHeld && IsRightMouseHeld;
+        public bool IsPrimaryHeld { get; private set; }
+        public bool IsSecondaryHeld { get; private set; }
+        public bool IsLeftMouseHeld => IsPrimaryHeld;
+        public bool IsRightMouseHeld => IsSecondaryHeld;
+        public bool IsDualMouseForwardHeld => IsDualInputForwardHeld;
+        public bool IsDualInputForwardHeld => IsPrimaryHeld && IsSecondaryHeld;
+        public ControlDeviceKind LastUsedDeviceKind { get; private set; }
+        public LookDeviceKind CurrentLookDeviceKind { get; private set; }
+        public Vector2 PointerLookDelta => CurrentLookDeviceKind == LookDeviceKind.Pointer ? LookInput : Vector2.zero;
+        public Vector2 GamepadLookInput => CurrentLookDeviceKind == LookDeviceKind.Gamepad ? LookInput : Vector2.zero;
+        public bool HasGamepadLookInput => GamepadLookInput.sqrMagnitude > gamepadLookDeadzone * gamepadLookDeadzone;
+        public bool IsUsingGamepad => LastUsedDeviceKind == ControlDeviceKind.Gamepad;
+        public bool ShouldAlignCharacterToCamera => IsSecondaryHeld || HasGamepadLookInput;
+        public bool ShouldBlockPointerFacing => IsPrimaryHeld && !HasGamepadLookInput;
+        public bool IsCameraLookHeld => IsPrimaryHeld || IsSecondaryHeld;
 
-        private void Update()
+        private void Reset()
         {
-            RefreshMouseState();
-            MoveInput = ReadMoveInput();
-            PointerScreenPosition = ReadPointerPosition();
-            LookDelta = ReadLookDelta();
-            ZoomDelta = ReadZoomDelta();
+            TryAssignDefaultAssetInEditor();
         }
 
-        private void RefreshMouseState()
+        private void OnValidate()
         {
-            if (Mouse.current == null)
+            dualMouseForwardAmount = Mathf.Max(0.0f, dualMouseForwardAmount);
+            gamepadLookDeadzone = Mathf.Clamp01(gamepadLookDeadzone);
+            if (string.IsNullOrWhiteSpace(resourcesFallbackPath))
             {
-                IsLeftMouseHeld = false;
-                IsRightMouseHeld = false;
+                resourcesFallbackPath = DefaultActionAssetResourcesPath;
+            }
+
+            TryAssignDefaultAssetInEditor();
+        }
+
+        private void OnEnable()
+        {
+            if (!EnsureInputActionsInitialized())
+            {
                 return;
             }
 
-            IsLeftMouseHeld = Mouse.current.leftButton.isPressed;
-            IsRightMouseHeld = Mouse.current.rightButton.isPressed;
+            BindCallbacks();
+            gameplayMap.Enable();
+            SampleActions();
         }
 
-        private Vector2 ReadMoveInput()
+        private void Update()
         {
-            if (Keyboard.current == null)
+            if (!EnsureInputActionsInitialized())
             {
-                return ApplyDualMouseForward(Vector2.zero);
+                return;
             }
 
-            float horizontal = 0.0f;
-            float vertical = 0.0f;
+            SampleActions();
+        }
 
-            if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)
+        private void OnDisable()
+        {
+            if (gameplayMap != null)
             {
-                horizontal -= 1.0f;
+                gameplayMap.Disable();
             }
 
-            if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed)
+            UnbindCallbacks();
+            ClearRuntimeState();
+        }
+
+        private void OnDestroy()
+        {
+            if (runtimeInputActions != null)
             {
-                horizontal += 1.0f;
+                Destroy(runtimeInputActions);
+                runtimeInputActions = null;
+            }
+        }
+
+        private bool EnsureInputActionsInitialized()
+        {
+            if (runtimeInputActions != null)
+            {
+                return true;
             }
 
-            if (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed)
+            if (initializationFailed)
             {
-                vertical -= 1.0f;
+                return false;
             }
 
-            if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed)
+            InputActionAsset sourceAsset = ResolveSourceAsset();
+            if (sourceAsset == null)
             {
-                vertical += 1.0f;
+                initializationFailed = true;
+                Debug.LogError("InputProvider could not resolve a Phase 1 InputActionAsset.", this);
+                return false;
             }
 
-            Vector2 moveInput = new Vector2(horizontal, vertical);
+            runtimeInputActions = Instantiate(sourceAsset);
+            gameplayMap = runtimeInputActions.FindActionMap(GameplayMapName, true);
+            moveAction = gameplayMap.FindAction(MoveActionName, true);
+            lookAction = gameplayMap.FindAction(LookActionName, true);
+            pointerPositionAction = gameplayMap.FindAction(PointerPositionActionName, true);
+            zoomAction = gameplayMap.FindAction(ZoomActionName, true);
+            primaryHoldAction = gameplayMap.FindAction(PrimaryHoldActionName, true);
+            secondaryHoldAction = gameplayMap.FindAction(SecondaryHoldActionName, true);
+            return true;
+        }
 
-            // 대각선 이동 시 축 합산으로 속도가 증가하지 않도록 정규화합니다.
-            if (normalizeDiagonalInput && moveInput.sqrMagnitude > 1.0f)
+        private void BindCallbacks()
+        {
+            if (callbacksBound)
             {
-                moveInput.Normalize();
+                return;
             }
 
-            return ApplyDualMouseForward(moveInput);
+            moveAction.performed += OnGameplayActionPerformed;
+            lookAction.performed += OnGameplayActionPerformed;
+            pointerPositionAction.performed += OnGameplayActionPerformed;
+            zoomAction.performed += OnGameplayActionPerformed;
+            primaryHoldAction.performed += OnGameplayActionPerformed;
+            secondaryHoldAction.performed += OnGameplayActionPerformed;
+            callbacksBound = true;
+        }
+
+        private void UnbindCallbacks()
+        {
+            if (!callbacksBound || moveAction == null)
+            {
+                callbacksBound = false;
+                return;
+            }
+
+            moveAction.performed -= OnGameplayActionPerformed;
+            lookAction.performed -= OnGameplayActionPerformed;
+            pointerPositionAction.performed -= OnGameplayActionPerformed;
+            zoomAction.performed -= OnGameplayActionPerformed;
+            primaryHoldAction.performed -= OnGameplayActionPerformed;
+            secondaryHoldAction.performed -= OnGameplayActionPerformed;
+            callbacksBound = false;
+        }
+
+        private void OnGameplayActionPerformed(InputAction.CallbackContext context)
+        {
+            LastUsedDeviceKind = ClassifyControlDevice(context.control.device);
+        }
+
+        private void SampleActions()
+        {
+            IsPrimaryHeld = primaryHoldAction.IsPressed();
+            IsSecondaryHeld = secondaryHoldAction.IsPressed();
+
+            RawMoveInput = moveAction.ReadValue<Vector2>();
+            MoveInput = ApplyDualMouseForward(PrepareMoveInput(RawMoveInput));
+
+            Vector2 pointerPosition = pointerPositionAction.ReadValue<Vector2>();
+            PointerScreenPosition = pointerPosition.sqrMagnitude > 0.0f
+                ? pointerPosition
+                : new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+
+            LookInput = lookAction.ReadValue<Vector2>();
+            CurrentLookDeviceKind = ClassifyLookDevice(lookAction.activeControl?.device);
+            ZoomDelta = zoomAction.ReadValue<float>();
+        }
+
+        private Vector2 PrepareMoveInput(Vector2 sourceMoveInput)
+        {
+            if (normalizeDiagonalInput && sourceMoveInput.sqrMagnitude > 1.0f)
+            {
+                sourceMoveInput.Normalize();
+            }
+
+            return sourceMoveInput;
         }
 
         private Vector2 ApplyDualMouseForward(Vector2 sourceMoveInput)
         {
-            if (!enableDualMouseForwardMove || !IsDualMouseForwardHeld)
+            if (!enableDualMouseForwardMove || !IsDualInputForwardHeld)
             {
                 return sourceMoveInput;
             }
@@ -99,34 +254,85 @@ namespace SystemicOverload.Phase1
             return composedInput;
         }
 
-        private Vector2 ReadPointerPosition()
+        private void ClearRuntimeState()
         {
-            if (Mouse.current == null)
-            {
-                return new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
-            }
-
-            return Mouse.current.position.ReadValue();
+            RawMoveInput = Vector2.zero;
+            MoveInput = Vector2.zero;
+            PointerScreenPosition = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+            LookInput = Vector2.zero;
+            ZoomDelta = 0.0f;
+            IsPrimaryHeld = false;
+            IsSecondaryHeld = false;
+            LastUsedDeviceKind = ControlDeviceKind.None;
+            CurrentLookDeviceKind = LookDeviceKind.None;
         }
 
-        private Vector2 ReadLookDelta()
+        private InputActionAsset ResolveSourceAsset()
         {
-            if (Mouse.current == null)
+            if (inputActionsAsset != null)
             {
-                return Vector2.zero;
+                return inputActionsAsset;
             }
 
-            return Mouse.current.delta.ReadValue();
+            if (!string.IsNullOrWhiteSpace(resourcesFallbackPath))
+            {
+                inputActionsAsset = Resources.Load<InputActionAsset>(resourcesFallbackPath);
+            }
+
+            return inputActionsAsset;
         }
 
-        private float ReadZoomDelta()
+        private static LookDeviceKind ClassifyLookDevice(InputDevice device)
         {
-            if (Mouse.current == null)
+            if (device == null)
             {
-                return 0.0f;
+                return LookDeviceKind.None;
             }
 
-            return Mouse.current.scroll.ReadValue().y * 0.01f;
+            if (device is Mouse || device is Pen || device is Touchscreen)
+            {
+                return LookDeviceKind.Pointer;
+            }
+
+            if (device is Gamepad)
+            {
+                return LookDeviceKind.Gamepad;
+            }
+
+            return LookDeviceKind.Other;
+        }
+
+        private static ControlDeviceKind ClassifyControlDevice(InputDevice device)
+        {
+            if (device == null)
+            {
+                return ControlDeviceKind.None;
+            }
+
+            if (device is Gamepad)
+            {
+                return ControlDeviceKind.Gamepad;
+            }
+
+            if (device is Keyboard || device is Mouse || device is Pen || device is Touchscreen)
+            {
+                return ControlDeviceKind.KeyboardMouse;
+            }
+
+            return ControlDeviceKind.Other;
+        }
+
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+        private void TryAssignDefaultAssetInEditor()
+        {
+            if (inputActionsAsset != null)
+            {
+                return;
+            }
+
+#if UNITY_EDITOR
+            inputActionsAsset = AssetDatabase.LoadAssetAtPath<InputActionAsset>(DefaultActionAssetEditorPath);
+#endif
         }
     }
 }
