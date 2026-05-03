@@ -30,4 +30,4 @@ git checkout -b phase/phase-2-damage-weapon
 # Phase 2 작업
 ```
 
-현재 원격에 `Phase1_Movement` 형태가 있을 수 있습니다. 팀 규칙을 `phase/phase-1-movement` 슬래시 형식으로 통일하는 것을 권장합니다.
+현재 원격에 `Phase1_Movement` 브랜치도 유지됩니다. 로드맵과 동일한 슬래시 형식 통합 브랜치 **`phase/phase-1-movement`**, **`phase/phase-2-damage-weapon`** 을 원격에 생성해 두었습니다(동일 커밋에서 분기, 이후 Phase별로 앞만 진행하면 됩니다).
