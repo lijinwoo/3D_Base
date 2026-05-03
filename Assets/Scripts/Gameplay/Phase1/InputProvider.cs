@@ -37,6 +37,7 @@ namespace SystemicOverload.Phase1
         private const string ZoomActionName = "Zoom";
         private const string PrimaryHoldActionName = "PrimaryHold";
         private const string SecondaryHoldActionName = "SecondaryHold";
+        private const string AttackActionName = "Attack";
 
         [Header("Action Asset")]
         [SerializeField] private InputActionAsset inputActionsAsset;
@@ -58,6 +59,7 @@ namespace SystemicOverload.Phase1
         private InputAction zoomAction;
         private InputAction primaryHoldAction;
         private InputAction secondaryHoldAction;
+        private InputAction attackAction;
         private bool callbacksBound;
         private bool initializationFailed;
 
@@ -81,6 +83,11 @@ namespace SystemicOverload.Phase1
         public bool ShouldAlignCharacterToCamera => IsSecondaryHeld || HasGamepadLookInput;
         public bool ShouldBlockPointerFacing => IsPrimaryHeld && !HasGamepadLookInput;
         public bool IsCameraLookHeld => IsPrimaryHeld || IsSecondaryHeld;
+
+        /// <summary>
+        /// 이번 프레임에 공격 입력이 눌렸는지 여부입니다. Phase 1 전용 씬에서 Attack 액션이 없으면 항상 false입니다.
+        /// </summary>
+        public bool WasAttackPressedThisFrame { get; private set; }
 
         private void Reset()
         {
@@ -169,6 +176,14 @@ namespace SystemicOverload.Phase1
             zoomAction = gameplayMap.FindAction(ZoomActionName, true);
             primaryHoldAction = gameplayMap.FindAction(PrimaryHoldActionName, true);
             secondaryHoldAction = gameplayMap.FindAction(SecondaryHoldActionName, true);
+            attackAction = gameplayMap.FindAction(AttackActionName, false);
+            if (attackAction == null)
+            {
+                Debug.LogWarning(
+                    $"InputProvider: '{AttackActionName}' 액션을 찾을 수 없습니다. Phase1Gameplay.inputactions를 갱신했는지 확인하세요.",
+                    this);
+            }
+
             return true;
         }
 
@@ -185,6 +200,11 @@ namespace SystemicOverload.Phase1
             zoomAction.performed += OnGameplayActionPerformed;
             primaryHoldAction.performed += OnGameplayActionPerformed;
             secondaryHoldAction.performed += OnGameplayActionPerformed;
+            if (attackAction != null)
+            {
+                attackAction.performed += OnGameplayActionPerformed;
+            }
+
             callbacksBound = true;
         }
 
@@ -202,6 +222,11 @@ namespace SystemicOverload.Phase1
             zoomAction.performed -= OnGameplayActionPerformed;
             primaryHoldAction.performed -= OnGameplayActionPerformed;
             secondaryHoldAction.performed -= OnGameplayActionPerformed;
+            if (attackAction != null)
+            {
+                attackAction.performed -= OnGameplayActionPerformed;
+            }
+
             callbacksBound = false;
         }
 
@@ -226,6 +251,7 @@ namespace SystemicOverload.Phase1
             LookInput = lookAction.ReadValue<Vector2>();
             CurrentLookDeviceKind = ClassifyLookDevice(lookAction.activeControl?.device);
             ZoomDelta = zoomAction.ReadValue<float>();
+            WasAttackPressedThisFrame = attackAction != null && attackAction.WasPressedThisFrame();
         }
 
         private Vector2 PrepareMoveInput(Vector2 sourceMoveInput)
@@ -265,6 +291,7 @@ namespace SystemicOverload.Phase1
             IsSecondaryHeld = false;
             LastUsedDeviceKind = ControlDeviceKind.None;
             CurrentLookDeviceKind = LookDeviceKind.None;
+            WasAttackPressedThisFrame = false;
         }
 
         private InputActionAsset ResolveSourceAsset()

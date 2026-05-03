@@ -24,7 +24,10 @@
 - [VFX and Feedback Pipeline](VFX_and_Feedback_Pipeline.md)
   - `Shuriken`, `VFX Graph`, `Cinemachine Impulse` 적용 정책
 - [MVP Roadmap Phase and Release Management](MVP_Roadmap_Phase_and_Release_Management.md)
-  - MVP Phase 운영, 브랜치 전략, 릴리즈/태그 기준
+  - MVP Phase 운영, 브랜치 전략, 릴리즈/태그 기준, Phase별 `Animation` 산출물 및 `Animation Pipeline` 공통 규칙
+- [Phase1 vs Phase2 Change Log](Phase1_vs_Phase2_Change_Log.md) — Phase 2 도입 시 Phase 1 입력/애니/전투 연동 변경 요약
+- [Phase2 Implementation Guide](Phase2_Implementation_Guide_and_Source.md) — Phase 2 구현 참고(코드는 `Assets`에 반영됨)
+- [Unity 3D Course — Notion & Git](Unity3D_Course_Notion_and_Git.md) — 수업용 Notion 페이지 링크 및 `phase/*` 브랜치 정리
 
 ## 현재 패키지 기준
 `Packages/manifest.json` 기준 핵심 패키지:

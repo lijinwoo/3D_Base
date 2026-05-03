@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using SystemicOverload.Combat;
 using SystemicOverload.Phase1;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -17,6 +18,7 @@ namespace SystemicOverload.EditorTools
     {
         private const string PhaseValidationFolder = "Assets/01.Scenes/PhaseValidation";
         private const string Phase1ScenePath = "Assets/01.Scenes/PhaseValidation/Phase_01_MovementValidation.unity";
+        private const string Phase2ScenePath = "Assets/01.Scenes/PhaseValidation/Phase_02_DamageWeaponValidation.unity";
 
         [MenuItem("Tools/Systemic Overload/Phase Validation/Build Phase 1 Movement Scene")]
         public static void BuildPhase1MovementScene()
@@ -24,7 +26,8 @@ namespace SystemicOverload.EditorTools
             EnsureFolderPath(PhaseValidationFolder);
 
             EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-            SetupPhase1MovementScene();
+            Phase1SceneObjects built = SetupPhase1MovementSceneCore(useMouseRaycastRotation: false);
+            TryAttachPlayerAnimatorStack(built.Player, built.MovementComponent);
 
             EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene(), Phase1ScenePath);
             AddSceneToBuildSettings(Phase1ScenePath);
@@ -35,7 +38,63 @@ namespace SystemicOverload.EditorTools
             Debug.Log("[PhaseValidationSceneTool] Phase 1 Validation Scene 생성 및 Build Settings 등록이 완료되었습니다.");
         }
 
-        private static void SetupPhase1MovementScene()
+        [MenuItem("Tools/Systemic Overload/Phase Validation/Build Phase 2 Damage Weapon Scene")]
+        public static void BuildPhase2DamageWeaponScene()
+        {
+            EnsureFolderPath(PhaseValidationFolder);
+
+            EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            Phase1SceneObjects built = SetupPhase1MovementSceneCore(useMouseRaycastRotation: true);
+            TryAttachPlayerAnimatorStack(built.Player, built.MovementComponent);
+
+            HealthComponent playerHealth = built.Player.AddComponent<HealthComponent>();
+            SetPrivateField(playerHealth, "maxHealth", 100.0f);
+            SetPrivateField(playerHealth, "currentHealth", 100.0f);
+
+            CombatComponent combatComponent = built.Player.AddComponent<CombatComponent>();
+            Animator playerAnimator = built.Player.GetComponent<Animator>();
+            SetPrivateField(combatComponent, "movementComponent", built.MovementComponent);
+            SetPrivateField(combatComponent, "animator", playerAnimator);
+            SetPrivateField(combatComponent, "maxRange", 50.0f);
+            SetPrivateField(combatComponent, "hitLayerMask", ~0);
+
+            GameObject dummy = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            dummy.name = "TrainingDummy";
+            dummy.transform.position = new Vector3(0.0f, 1.0f, 10.0f);
+            HealthComponent dummyHealth = dummy.AddComponent<HealthComponent>();
+            SetPrivateField(dummyHealth, "maxHealth", 500.0f);
+            SetPrivateField(dummyHealth, "currentHealth", 500.0f);
+
+            EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene(), Phase2ScenePath);
+            AddSceneToBuildSettings(Phase2ScenePath);
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+            Debug.Log("[PhaseValidationSceneTool] Phase 2 Validation Scene 생성 및 Build Settings 등록이 완료되었습니다. 공격: Space / 게임패드 South");
+        }
+
+        private readonly struct Phase1SceneObjects
+        {
+            public Phase1SceneObjects(
+                GameObject player,
+                InputProvider inputProvider,
+                MovementComponent movementComponent,
+                Camera mainCamera)
+            {
+                Player = player;
+                InputProvider = inputProvider;
+                MovementComponent = movementComponent;
+                MainCamera = mainCamera;
+            }
+
+            public GameObject Player { get; }
+            public InputProvider InputProvider { get; }
+            public MovementComponent MovementComponent { get; }
+            public Camera MainCamera { get; }
+        }
+
+        private static Phase1SceneObjects SetupPhase1MovementSceneCore(bool useMouseRaycastRotation)
         {
             GameObject lightRoot = new GameObject("Directional Light");
             Light directionalLight = lightRoot.AddComponent<Light>();
@@ -83,12 +142,45 @@ namespace SystemicOverload.EditorTools
             SetPrivateField(movementComponent, "aimCamera", mainCamera);
             SetPrivateField(movementComponent, "groundLayerMask", -1);
             SetPrivateField(movementComponent, "aimRayMaxDistance", 500.0f);
-            SetPrivateField(movementComponent, "useMouseRaycastRotation", false);
+            SetPrivateField(movementComponent, "useMouseRaycastRotation", useMouseRaycastRotation);
             SetPrivateField(movementComponent, "orbitCameraController", cameraController);
 
             SetPrivateField(inputProvider, "normalizeDiagonalInput", true);
             SetPrivateField(inputProvider, "enableDualMouseForwardMove", true);
             SetPrivateField(inputProvider, "dualMouseForwardAmount", 1.0f);
+
+            return new Phase1SceneObjects(player, inputProvider, movementComponent, mainCamera);
+        }
+
+        private static void TryAttachPlayerAnimatorStack(GameObject player, MovementComponent movementComponent)
+        {
+            Animator animator = player.GetComponent<Animator>();
+            if (animator == null)
+            {
+                animator = player.AddComponent<Animator>();
+            }
+
+            RuntimeAnimatorController controller = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(
+                Phase1LocomotionAnimatorFactory.ControllerAssetPath);
+            if (controller != null)
+            {
+                animator.runtimeAnimatorController = controller;
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "[PhaseValidationSceneTool] Animator Controller가 없습니다. " +
+                    "Tools/Systemic Overload/Animation/Create Phase1 Locomotion Placeholder Controller 메뉴를 먼저 실행하세요.");
+            }
+
+            LocomotionAnimatorDriver driver = player.GetComponent<LocomotionAnimatorDriver>();
+            if (driver == null)
+            {
+                driver = player.AddComponent<LocomotionAnimatorDriver>();
+            }
+
+            SetPrivateField(driver, "movementComponent", movementComponent);
+            SetPrivateField(driver, "characterController", player.GetComponent<CharacterController>());
         }
 
         [MenuItem("Tools/Systemic Overload/Phase Validation/Generate Scene Policy Template")]

@@ -30,6 +30,18 @@ namespace SystemicOverload.Phase1
         private float verticalVelocity;
 
         public Vector3 CurrentPlanarVelocity => currentPlanarVelocity;
+
+        /// <summary>
+        /// 인스펙터에 설정된 최대 평면 이동 속도입니다. 애니메이션 정규화에 사용합니다.
+        /// </summary>
+        public float MaxMoveSpeed => moveSpeed;
+
+        /// <summary>
+        /// 0~1로 정규화된 현재 평면 속도입니다. Blend Tree `Speed` 파라미터에 바로 넣을 수 있습니다.
+        /// </summary>
+        public float NormalizedPlanarSpeed =>
+            moveSpeed > 0.0001f ? Mathf.Clamp01(currentPlanarVelocity.magnitude / moveSpeed) : 0.0f;
+
         public Vector3 LastAimPoint { get; private set; }
 
         private void Awake()
