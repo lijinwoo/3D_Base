@@ -28,6 +28,10 @@
 - [Phase1 vs Phase2 Change Log](Phase1_vs_Phase2_Change_Log.md) — Phase 2 도입 시 Phase 1 입력/애니/전투 연동 변경 요약
 - [Phase2 Implementation Guide](Phase2_Implementation_Guide_and_Source.md) — Phase 2 구현 참고(코드는 `Assets`에 반영됨)
 - [Unity 3D Course — Notion & Git](Unity3D_Course_Notion_and_Git.md) — 수업용 Notion 페이지 링크 및 `phase/*` 브랜치 정리
+- [Baseline — main and integration](Baseline_Main_and_Integration.md) — `main` 기준선·통합 순서·Phase 1~2 보강 범위 고정
+- [Phase 1·2 Regression Checklist](Phase1_Phase2_Regression_Checklist.md) — Phase 1·2 회귀·완료 기준
+- [Phase 6 Profiling Checklist](Phase6_Profiling_Checklist.md) — CPU/GPU/Memory/GC 점검 항목
+- [Notion sync — Phase 3~6](Notion_Sync_Phase3_to_6.md) — Notion·태그·릴리즈 노트 동기화 절차
 
 ## 현재 패키지 기준
 `Packages/manifest.json` 기준 핵심 패키지:

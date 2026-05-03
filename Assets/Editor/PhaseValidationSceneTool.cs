@@ -20,6 +20,24 @@ namespace SystemicOverload.EditorTools
         private const string Phase1ScenePath = "Assets/01.Scenes/PhaseValidation/Phase_01_MovementValidation.unity";
         private const string Phase2ScenePath = "Assets/01.Scenes/PhaseValidation/Phase_02_DamageWeaponValidation.unity";
 
+        /// <summary>
+        /// 한국어 주석: Phase 3 이후 에디터 Tool에서 Phase 1 코어(조명·지면·플레이어·카메라)를 재사용합니다.
+        /// </summary>
+        public static void InstantiatePhase1MovementCore(bool useMouseRaycastRotation, out GameObject player, out MovementComponent movementComponent)
+        {
+            Phase1SceneObjects built = SetupPhase1MovementSceneCore(useMouseRaycastRotation);
+            player = built.Player;
+            movementComponent = built.MovementComponent;
+        }
+
+        /// <summary>
+        /// 한국어 주석: 외부 에디터 스크립트에서 Animator 스택을 연결할 때 사용합니다.
+        /// </summary>
+        public static void AttachLocomotionAnimatorPublic(GameObject player, MovementComponent movementComponent)
+        {
+            TryAttachPlayerAnimatorStack(player, movementComponent);
+        }
+
         [MenuItem("Tools/Systemic Overload/Phase Validation/Build Phase 1 Movement Scene")]
         public static void BuildPhase1MovementScene()
         {

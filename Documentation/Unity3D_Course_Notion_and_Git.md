@@ -8,6 +8,10 @@
 |-------|------|-----|
 | Phase 1 | Unity 3D 수업 - Phase 1 (이동·입력·애니메이션) | https://www.notion.so/35537e0b48d881d3a77def3b281a485a |
 | Phase 2 | Unity 3D 수업 - Phase 2 (전투·데미지·연동) | https://www.notion.so/35537e0b48d881e08216ec4e08c62210 |
+| Phase 3 | Unity 3D 수업 - Phase 3 (Pool·ScriptableObject·웨이브) | (Notion 하위 페이지 생성 후 URL 기록 — [Notion_Sync_Phase3_to_6.md](Notion_Sync_Phase3_to_6.md)) |
+| Phase 4 | Unity 3D 수업 - Phase 4 (NavMesh·AI·Blackboard) | (동일) |
+| Phase 5 | Unity 3D 수업 - Phase 5 (Addressables·VFX) | (동일) |
+| Phase 6 | Unity 3D 수업 - Phase 6 (빌드·프로파일링) | (동일) |
 
 ## Git 브랜치 정책 (MVP 로드맵과 정렬)
 
@@ -15,6 +19,10 @@
 |--------|------|
 | `phase/phase-1-movement` | Phase 1 통합 기준선 (이동·카메라·입력·로코모션 Animator) |
 | `phase/phase-2-damage-weapon` | Phase 2 통합 기준선 (데미지·무기·히트 스캔·Animator 트리거 연동) |
+| `phase/phase-3-pool-so-combat` | Phase 3 통합 기준선 (Object Pool·Stat/Weapon/Wave `ScriptableObject`) |
+| `phase/phase-4-ai-navmesh-behavior` | Phase 4 통합 기준선 (NavMesh·추격 AI·Blackboard) |
+| `phase/phase-5-addressables-vfx` | Phase 5 통합 기준선 (Addressables·VFX one-shot) |
+| `phase/phase-6-build-profiling` | Phase 6 통합 기준선 (빌드·Profiler 스냅샷) |
 | `feature/<phase>-<topic>` | 세부 작업 (예: `feature/phase1-orbit-camera`) |
 
 Phase 1 완료 시 `mvp-phase1` 태그, Phase 2 완료 시 `mvp-phase2` 태그 등은 [MVP_Roadmap_Phase_and_Release_Management.md](MVP_Roadmap_Phase_and_Release_Management.md)를 따릅니다.

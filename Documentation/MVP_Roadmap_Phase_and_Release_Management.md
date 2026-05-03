@@ -13,6 +13,16 @@
   - `Assets/01.Scenes/PhaseValidation/Phase_01_MovementValidation.unity`
 - Scene 생성/정렬은 Unity Editor Tool 메뉴를 사용합니다.
   - `Tools/Systemic Overload/Phase Validation/Build Phase 1 Movement Scene`
+  - `Tools/Systemic Overload/Phase Validation/Build Phase 2 Damage Weapon Scene`
+  - `Tools/Systemic Overload/Phase Validation/Build Phase 3 Combat Data Scene`
+  - `Tools/Systemic Overload/Phase Validation/Build Phase 4 AI Navigation Scene`
+  - `Tools/Systemic Overload/Phase Validation/Build Phase 5 Addressables VFX Scene`
+  - `Tools/Systemic Overload/Phase Validation/Build Phase 6 Final Profiling Scene`
+- Phase 3~6 표준 Scene 경로(생성 후):
+  - `Assets/01.Scenes/PhaseValidation/Phase_03_CombatDataValidation.unity`
+  - `Assets/01.Scenes/PhaseValidation/Phase_04_AINavigationValidation.unity`
+  - `Assets/01.Scenes/PhaseValidation/Phase_05_AddressablesVFXValidation.unity`
+  - `Assets/01.Scenes/PhaseValidation/Phase_06_FinalProfilingValidation.unity`
 
 ## 2. Branch Strategy
 
