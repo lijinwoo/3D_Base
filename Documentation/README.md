@@ -5,7 +5,10 @@
 설계 철학(`Decoupling`, `Scalability`, `Performance`)을 실제 Unity 3D 개발 흐름에 맞춰 문서화했습니다.
 
 ## 권장 읽기 순서
+<<<<<<< HEAD
 0. [Game Vision — Hybrid Single-player RPG](Game_Vision_Hybrid_Single_RPG.md)
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 1. [Technical Design Specification](Technical_Design_Specification_Systemic_Overload.md)
 2. [Architecture Component and Interface](Architecture_Component_and_Interface.md)
 3. [Gameplay Systems Movement AI Combat](Gameplay_Systems_Movement_AI_Combat.md)
@@ -42,6 +45,7 @@
 - `Cinemachine`
 - `VFX Graph`
 - `URP`
+<<<<<<< HEAD
 - `Test Framework`
 
 > 미사용으로 정리한 패키지: `com.unity.visualscripting`, `com.unity.multiplayer.center`. 향후 추가 시 사용 사례를 먼저 정의하고 manifest에 등록합니다.
@@ -54,13 +58,19 @@
 ## 인코딩 규칙
 - 모든 문서와 소스는 **UTF-8 (BOM 없음)** 으로 저장합니다.
 - Windows PowerShell에서 신규 파일 생성 시 인코딩이 UTF-16/CP949로 변경되지 않도록 주의합니다.
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 
 ## Phase 운영 원칙
 - 개발 단위는 `feature/<phase>-<topic>` 브랜치에서 시작합니다.
 - 각 기능은 해당 `phase/*` 브랜치로 PR 후 통합합니다.
 - Phase 완료 후 `develop`으로 병합하고 마일스톤 태그를 생성합니다.
 - 최종 MVP는 `release/mvp-1.0.0`에서 QA 후 `main`으로 병합합니다.
+<<<<<<< HEAD
 - 각 Phase는 `Assets/01.Scenes/PhaseValidation/` 아래 RPG 수직 슬라이스용 검증 씬을 유지합니다(에디터 메뉴: `Tools/Systemic Overload/RPG Vertical Slice/`).
+=======
+- 각 Phase는 `Assets/01.Scenes/PhaseValidation/` 아래 전용 Validation Scene을 유지해야 합니다.
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 
 ## 문서 유지보수 규칙
 - 새로운 시스템 도입 시, 관련 문서를 먼저 업데이트한 뒤 구현을 진행합니다.

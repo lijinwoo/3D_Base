@@ -19,7 +19,11 @@
 |--------|------|
 | `phase/phase-1-movement` | Phase 1 통합 기준선 (이동·카메라·입력·로코모션 Animator) |
 | `phase/phase-2-damage-weapon` | Phase 2 통합 기준선 (데미지·무기·히트 스캔·Animator 트리거 연동) |
+<<<<<<< HEAD
 | `phase/phase-3-pool-so-combat` | Phase 3 통합 기준선 (Object Pool·Stat/Weapon/Encounter·Quest `ScriptableObject`) |
+=======
+| `phase/phase-3-pool-so-combat` | Phase 3 통합 기준선 (Object Pool·Stat/Weapon/Wave `ScriptableObject`) |
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 | `phase/phase-4-ai-navmesh-behavior` | Phase 4 통합 기준선 (NavMesh·추격 AI·Blackboard) |
 | `phase/phase-5-addressables-vfx` | Phase 5 통합 기준선 (Addressables·VFX one-shot) |
 | `phase/phase-6-build-profiling` | Phase 6 통합 기준선 (빌드·Profiler 스냅샷) |

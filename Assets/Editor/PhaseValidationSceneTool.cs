@@ -5,7 +5,10 @@ using System.Reflection;
 using System.Text;
 using SystemicOverload.Combat;
 using SystemicOverload.Phase1;
+<<<<<<< HEAD
 using SystemicOverload.Rpg;
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -39,7 +42,11 @@ namespace SystemicOverload.EditorTools
             TryAttachPlayerAnimatorStack(player, movementComponent);
         }
 
+<<<<<<< HEAD
         [MenuItem("Tools/Systemic Overload/RPG Vertical Slice/Build Phase 1 Movement Scene")]
+=======
+        [MenuItem("Tools/Systemic Overload/Phase Validation/Build Phase 1 Movement Scene")]
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
         public static void BuildPhase1MovementScene()
         {
             EnsureFolderPath(PhaseValidationFolder);
@@ -57,7 +64,11 @@ namespace SystemicOverload.EditorTools
             Debug.Log("[PhaseValidationSceneTool] Phase 1 Validation Scene 생성 및 Build Settings 등록이 완료되었습니다.");
         }
 
+<<<<<<< HEAD
         [MenuItem("Tools/Systemic Overload/RPG Vertical Slice/Build Phase 2 Damage Weapon Scene")]
+=======
+        [MenuItem("Tools/Systemic Overload/Phase Validation/Build Phase 2 Damage Weapon Scene")]
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
         public static void BuildPhase2DamageWeaponScene()
         {
             EnsureFolderPath(PhaseValidationFolder);
@@ -168,9 +179,12 @@ namespace SystemicOverload.EditorTools
             SetPrivateField(inputProvider, "enableDualMouseForwardMove", true);
             SetPrivateField(inputProvider, "dualMouseForwardAmount", 1.0f);
 
+<<<<<<< HEAD
             // 한국어 주석: AI 등이 GameObject.Find 없이 플레이어를 참조할 수 있도록 등록합니다.
             player.AddComponent<PlayerTargetProvider>();
 
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
             return new Phase1SceneObjects(player, inputProvider, movementComponent, mainCamera);
         }
 
@@ -205,7 +219,11 @@ namespace SystemicOverload.EditorTools
             SetPrivateField(driver, "characterController", player.GetComponent<CharacterController>());
         }
 
+<<<<<<< HEAD
         [MenuItem("Tools/Systemic Overload/RPG Vertical Slice/Generate Scene Policy Template")]
+=======
+        [MenuItem("Tools/Systemic Overload/Phase Validation/Generate Scene Policy Template")]
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
         public static void GenerateScenePolicyTemplate()
         {
             EnsureFolderPath(PhaseValidationFolder);
@@ -221,12 +239,21 @@ namespace SystemicOverload.EditorTools
         private static string BuildPolicyTemplate()
         {
             StringBuilder builder = new StringBuilder();
+<<<<<<< HEAD
             builder.AppendLine("RPG Vertical Slice / Validation Scene Template");
             builder.AppendLine("- Scene Path Rule: Assets/01.Scenes/PhaseValidation/Phase_0N_<Feature>Validation.unity");
             builder.AppendLine("- Build Settings: 검증 씬을 enabled 상태로 등록");
             builder.AppendLine("- Minimum Objects:");
             builder.AppendLine("  - Ground (validation floor)");
             builder.AppendLine("  - Player + PlayerTargetProvider, RpgSystems(WorldState, Quest), EncounterDirector");
+=======
+            builder.AppendLine("Phase Validation Scene Template");
+            builder.AppendLine("- Scene Path Rule: Assets/01.Scenes/PhaseValidation/Phase_0N_<Feature>Validation.unity");
+            builder.AppendLine("- Build Settings: Phase Scene를 enabled 상태로 등록");
+            builder.AppendLine("- Minimum Objects:");
+            builder.AppendLine("  - Ground (validation floor)");
+            builder.AppendLine("  - Player/Target actor with current Phase components");
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
             builder.AppendLine("  - Main Camera with validation camera behavior");
             builder.AppendLine("- Validation Checklist:");
             builder.AppendLine("  - Smoke: 핵심 입력/동작 1회 이상 성공");
@@ -282,6 +309,7 @@ namespace SystemicOverload.EditorTools
             Object.DestroyImmediate(targetComponent);
         }
 
+<<<<<<< HEAD
         /// <summary>
         /// 한국어 주석: 기존 reflection 기반 SetPrivateField를 SerializedObject로 우회시켜 [FormerlySerializedAs]/Undo 호환을 얻습니다.
         /// MonoBehaviour 등 UnityEngine.Object 파생 타입에는 SerializedFieldUtility를 사용하고,
@@ -295,6 +323,10 @@ namespace SystemicOverload.EditorTools
                 return;
             }
 
+=======
+        private static void SetPrivateField<TTarget>(TTarget targetObject, string fieldName, object value)
+        {
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
             FieldInfo targetField = typeof(TTarget).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
             if (targetField == null)
             {

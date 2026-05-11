@@ -54,10 +54,13 @@ namespace SystemicOverload.Phase1
         [SerializeField] private float waterSurfaceHeight = -1000.0f;
         [SerializeField] private List<GameObject> underwaterEffectRoots = new List<GameObject>();
 
+<<<<<<< HEAD
         [Header("First Person Visibility")]
         [Tooltip("비워두면 followTarget 하위 모든 Renderer를 대상으로 합니다. 지정 시 해당 루트 하위만 제어합니다(예: Mesh_Body).")]
         [SerializeField] private Transform firstPersonHideRoot;
 
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
         private float currentYaw;
         private float currentPitch = 22.0f;
         private float targetZoomDistance;
@@ -67,8 +70,11 @@ namespace SystemicOverload.Phase1
         private bool isUnderwaterActive;
         private Transform cachedRendererTarget;
         private Renderer[] cachedTargetRenderers;
+<<<<<<< HEAD
         // 한국어 주석: 카메라가 직접 비활성화한 Renderer만 기록해 외부 토글(장비/피격/커스터마이징)을 보존합니다.
         private readonly HashSet<Renderer> renderersHiddenByCamera = new HashSet<Renderer>();
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 
         public Transform FollowTarget => followTarget;
         public float CurrentYaw => currentYaw;
@@ -89,8 +95,12 @@ namespace SystemicOverload.Phase1
 
         private void OnDisable()
         {
+<<<<<<< HEAD
             // 한국어 주석: 카메라 컴포넌트가 꺼지더라도 외부에서 의도적으로 끈 Renderer는 건드리지 않고, 우리가 숨긴 항목만 복구합니다.
             RestoreRenderersHiddenByCamera();
+=======
+            SetTargetRenderersEnabled(true);
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
             SetUnderwaterEffectsActive(false);
             wasInFirstPerson = false;
             isUnderwaterActive = false;
@@ -257,6 +267,7 @@ namespace SystemicOverload.Phase1
             }
 
             wasInFirstPerson = shouldEnableFirstPerson;
+<<<<<<< HEAD
             if (shouldEnableFirstPerson)
             {
                 HideRenderersForFirstPerson();
@@ -265,6 +276,9 @@ namespace SystemicOverload.Phase1
             {
                 RestoreRenderersHiddenByCamera();
             }
+=======
+            SetTargetRenderersEnabled(!shouldEnableFirstPerson);
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
         }
 
         private void UpdateEnvironmentTransition()
@@ -282,6 +296,7 @@ namespace SystemicOverload.Phase1
         private void CacheTargetRenderers()
         {
             cachedRendererTarget = followTarget;
+<<<<<<< HEAD
             // 한국어 주석: firstPersonHideRoot를 지정하면 그 하위만, 아니면 followTarget 하위 전체를 대상으로 합니다.
             Transform searchRoot = firstPersonHideRoot != null ? firstPersonHideRoot : followTarget;
             cachedTargetRenderers = searchRoot == null
@@ -299,6 +314,14 @@ namespace SystemicOverload.Phase1
         }
 
         private void HideRenderersForFirstPerson()
+=======
+            cachedTargetRenderers = followTarget == null
+                ? System.Array.Empty<Renderer>()
+                : followTarget.GetComponentsInChildren<Renderer>(true);
+        }
+
+        private void SetTargetRenderersEnabled(bool enabled)
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
         {
             if (cachedTargetRenderers == null || cachedRendererTarget != followTarget)
             {
@@ -307,6 +330,7 @@ namespace SystemicOverload.Phase1
 
             foreach (Renderer targetRenderer in cachedTargetRenderers)
             {
+<<<<<<< HEAD
                 if (targetRenderer == null)
                 {
                     continue;
@@ -340,6 +364,13 @@ namespace SystemicOverload.Phase1
             }
 
             renderersHiddenByCamera.Clear();
+=======
+                if (targetRenderer != null)
+                {
+                    targetRenderer.enabled = enabled;
+                }
+            }
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
         }
 
         private void SetUnderwaterEffectsActive(bool active)

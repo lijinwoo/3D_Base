@@ -6,10 +6,16 @@ using SystemicOverload.AddressablesSupport;
 using SystemicOverload.AI;
 using SystemicOverload.Combat;
 using SystemicOverload.Data;
+<<<<<<< HEAD
 using SystemicOverload.Encounter;
 using SystemicOverload.Phase1;
 using SystemicOverload.Pooling;
 using SystemicOverload.Rpg;
+=======
+using SystemicOverload.Phase1;
+using SystemicOverload.Pooling;
+using SystemicOverload.Wave;
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 using Unity.AI.Navigation;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -19,7 +25,11 @@ using UnityEngine.AI;
 namespace SystemicOverload.EditorTools
 {
     /// <summary>
+<<<<<<< HEAD
     /// 한국어 주석: Phase 3~6 RPG 검증 씬 생성 메뉴를 분리해 유지보수합니다(인카운터·세이브·퀘스트 포함).
+=======
+    /// 한국어 주석: Phase 3~6 Validation Scene 생성 메뉴를 분리해 유지보수합니다.
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
     /// </summary>
     public static class PhaseValidationScenePhases3Plus
     {
@@ -32,7 +42,11 @@ namespace SystemicOverload.EditorTools
         private const string Phase6ScenePath = "Assets/01.Scenes/PhaseValidation/Phase_06_FinalProfilingValidation.unity";
         private const string PoolEnemyPrefabPath = "Assets/01.Scenes/PhaseValidation/Prefabs/PoolEnemy.prefab";
 
+<<<<<<< HEAD
         [MenuItem("Tools/Systemic Overload/RPG Vertical Slice/Build Phase 3 Combat Data Scene")]
+=======
+        [MenuItem("Tools/Systemic Overload/Phase Validation/Build Phase 3 Combat Data Scene")]
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
         public static void BuildPhase3CombatDataScene()
         {
             EnsureFolderPath(PrefabFolder);
@@ -41,15 +55,22 @@ namespace SystemicOverload.EditorTools
             GameObject poolEnemyPrefabAsset = EnsurePoolEnemyPrefabAsset();
             StatData statData = EnsureStatDataAsset();
             WeaponData weaponData = EnsureWeaponDataAsset();
+<<<<<<< HEAD
             EncounterSpawnData encounterSpawnData = EnsureEncounterSpawnDataAsset(poolEnemyPrefabAsset);
             QuestDefinition questDefinition = EnsureQuestDefinitionAsset();
+=======
+            WaveData waveData = EnsureWaveDataAsset(poolEnemyPrefabAsset);
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 
             EnsureFolderPath(PhaseValidationFolder);
             EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
             PhaseValidationSceneTool.InstantiatePhase1MovementCore(true, out GameObject player, out MovementComponent movementComponent);
             PhaseValidationSceneTool.AttachLocomotionAnimatorPublic(player, movementComponent);
+<<<<<<< HEAD
             EnsureRpgServicesInScene(questDefinition);
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 
             HealthComponent playerHealth = player.AddComponent<HealthComponent>();
             SetPrivateField(playerHealth, "statData", statData);
@@ -75,21 +96,37 @@ namespace SystemicOverload.EditorTools
             SetPrivateField(pool, "prewarmCount", 4);
             SetPrivateField(pool, "resetAnimatorOnSpawn", true);
 
+<<<<<<< HEAD
             GameObject encounterRoot = new GameObject("EncounterDirector");
             encounterRoot.transform.position = Vector3.zero;
             EncounterDirector encounterDirector = encounterRoot.AddComponent<EncounterDirector>();
             SetPrivateField(encounterDirector, "encounterSpawnData", encounterSpawnData);
             SetPrivateField(encounterDirector, "enemyPool", pool);
             SetPrivateField(encounterDirector, "spawnAnchor", encounterRoot.transform);
+=======
+            GameObject waveRoot = new GameObject("WaveDirector");
+            waveRoot.transform.position = Vector3.zero;
+            WavePoolDirector waveDirector = waveRoot.AddComponent<WavePoolDirector>();
+            SetPrivateField(waveDirector, "waveData", waveData);
+            SetPrivateField(waveDirector, "enemyPool", pool);
+            SetPrivateField(waveDirector, "spawnAnchor", waveRoot.transform);
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 
             EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene(), Phase3ScenePath);
             AddSceneToBuildSettings(Phase3ScenePath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
+<<<<<<< HEAD
             Debug.Log("[PhaseValidationScenePhases3Plus] Phase 3 RPG 검증 씬이 생성되었습니다. EncounterSpawnData·Quest·WeaponData·StatData를 Assets/Data/PhaseValidation에서 확인하세요.");
         }
 
         [MenuItem("Tools/Systemic Overload/RPG Vertical Slice/Build Phase 4 AI Navigation Scene")]
+=======
+            Debug.Log("[PhaseValidationScenePhases3Plus] Phase 3 Validation Scene이 생성되었습니다. WaveData·WeaponData·StatData를 Assets/Data/PhaseValidation에서 확인하세요.");
+        }
+
+        [MenuItem("Tools/Systemic Overload/Phase Validation/Build Phase 4 AI Navigation Scene")]
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
         public static void BuildPhase4AiNavigationScene()
         {
             EnsureFolderPath(PhaseValidationFolder);
@@ -113,7 +150,10 @@ namespace SystemicOverload.EditorTools
             player.name = "Player";
             player.transform.position = new Vector3(0.0f, 1.0f, 0.0f);
             RemoveComponent<CapsuleCollider>(player);
+<<<<<<< HEAD
             player.AddComponent<PlayerTargetProvider>();
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 
             CharacterController characterController = player.AddComponent<CharacterController>();
             characterController.center = new Vector3(0.0f, 1.0f, 0.0f);
@@ -170,7 +210,11 @@ namespace SystemicOverload.EditorTools
             Debug.Log("[PhaseValidationScenePhases3Plus] Phase 4 Validation Scene이 생성되었습니다. NavMesh Surface가 베이크되었는지 확인하세요.");
         }
 
+<<<<<<< HEAD
         [MenuItem("Tools/Systemic Overload/RPG Vertical Slice/Build Phase 5 Addressables VFX Scene")]
+=======
+        [MenuItem("Tools/Systemic Overload/Phase Validation/Build Phase 5 Addressables VFX Scene")]
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
         public static void BuildPhase5AddressablesVfxScene()
         {
             EnsureFolderPath(PhaseValidationFolder);
@@ -199,6 +243,7 @@ namespace SystemicOverload.EditorTools
             Debug.Log("[PhaseValidationScenePhases3Plus] Phase 5 Validation Scene이 생성되었습니다. Addressables 그룹에 VFX를 등록하고 AssetReference를 연결하세요.");
         }
 
+<<<<<<< HEAD
         [MenuItem("Tools/Systemic Overload/RPG Vertical Slice/Build Phase 6 Final Profiling Scene")]
         public static void BuildPhase6FinalProfilingScene()
         {
@@ -212,6 +257,12 @@ namespace SystemicOverload.EditorTools
             EncounterSpawnData encounterSpawnData = EnsureEncounterSpawnDataAsset(poolEnemyPrefabAsset);
             QuestDefinition questDefinition = EnsureQuestDefinitionAsset();
 
+=======
+        [MenuItem("Tools/Systemic Overload/Phase Validation/Build Phase 6 Final Profiling Scene")]
+        public static void BuildPhase6FinalProfilingScene()
+        {
+            EnsureFolderPath(PhaseValidationFolder);
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
             EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
             GameObject lightRoot = new GameObject("Directional Light");
@@ -223,6 +274,7 @@ namespace SystemicOverload.EditorTools
             GameObject ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
             ground.name = "Ground";
             ground.transform.position = Vector3.zero;
+<<<<<<< HEAD
             ground.transform.localScale = new Vector3(8.0f, 1.0f, 8.0f);
             NavMeshSurface navMeshSurface = ground.AddComponent<NavMeshSurface>();
             navMeshSurface.collectObjects = CollectObjects.All;
@@ -288,11 +340,18 @@ namespace SystemicOverload.EditorTools
 
             // 한국어 주석: 플레이어/적/환경 배치 후 NavMesh를 마지막에 베이크합니다.
             navMeshSurface.BuildNavMesh();
+=======
+            ground.transform.localScale = new Vector3(4.0f, 1.0f, 4.0f);
+
+            GameObject note = new GameObject("ProfilingNote");
+            note.transform.position = new Vector3(0.0f, 1.0f, 0.0f);
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 
             EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene(), Phase6ScenePath);
             AddSceneToBuildSettings(Phase6ScenePath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
+<<<<<<< HEAD
             Debug.Log("[PhaseValidationScenePhases3Plus] Phase 1~6 통합 RPG 검증 씬(Phase 6)이 생성되었습니다. 이동/전투/Pool/인카운터/AI/Addressables/VFX 및 프로파일링을 한 scene에서 검증하세요.");
         }
 
@@ -301,6 +360,9 @@ namespace SystemicOverload.EditorTools
         /// </summary>
         private sealed class Phase6ProfilingMarker : MonoBehaviour
         {
+=======
+            Debug.Log("[PhaseValidationScenePhases3Plus] Phase 6 Validation Scene이 생성되었습니다. Documentation/Phase6_Profiling_Checklist.md를 따르세요.");
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
         }
 
         private static GameObject EnsurePoolEnemyPrefabAsset()
@@ -318,6 +380,7 @@ namespace SystemicOverload.EditorTools
             HealthComponent health = runtimeEnemy.AddComponent<HealthComponent>();
             SetPrivateField(health, "maxHealth", 40.0f);
             SetPrivateField(health, "currentHealth", 40.0f);
+<<<<<<< HEAD
             runtimeEnemy.AddComponent<PooledHealthReset>();
             runtimeEnemy.AddComponent<PooledInstanceLink>();
             runtimeEnemy.AddComponent<PooledEnemyReleaseOnDeath>();
@@ -325,6 +388,13 @@ namespace SystemicOverload.EditorTools
             EnsureFolderPath(PrefabFolder);
             GameObject prefabAsset = PrefabUtility.SaveAsPrefabAsset(runtimeEnemy, PoolEnemyPrefabPath);
             UnityEngine.Object.DestroyImmediate(runtimeEnemy);
+=======
+            runtimeEnemy.AddComponent<HealthResetOnSpawn>();
+
+            EnsureFolderPath(PrefabFolder);
+            GameObject prefabAsset = PrefabUtility.SaveAsPrefabAsset(runtimeEnemy, PoolEnemyPrefabPath);
+            Object.DestroyImmediate(runtimeEnemy);
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
             return prefabAsset;
         }
 
@@ -368,10 +438,17 @@ namespace SystemicOverload.EditorTools
             return created;
         }
 
+<<<<<<< HEAD
         private static EncounterSpawnData EnsureEncounterSpawnDataAsset(GameObject enemyPrefab)
         {
             string assetPath = $"{DataFolder}/Encounter_PhaseValidation.asset";
             EncounterSpawnData asset = AssetDatabase.LoadAssetAtPath<EncounterSpawnData>(assetPath);
+=======
+        private static WaveData EnsureWaveDataAsset(GameObject enemyPrefab)
+        {
+            string assetPath = $"{DataFolder}/Wave_PhaseValidation.asset";
+            WaveData asset = AssetDatabase.LoadAssetAtPath<WaveData>(assetPath);
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
             if (asset != null)
             {
                 SerializedObject fixup = new SerializedObject(asset);
@@ -380,7 +457,11 @@ namespace SystemicOverload.EditorTools
                 return asset;
             }
 
+<<<<<<< HEAD
             EncounterSpawnData created = ScriptableObject.CreateInstance<EncounterSpawnData>();
+=======
+            WaveData created = ScriptableObject.CreateInstance<WaveData>();
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
             AssetDatabase.CreateAsset(created, assetPath);
             SerializedObject serializedObject = new SerializedObject(created);
             serializedObject.FindProperty("pooledEnemyPrefab").objectReferenceValue = enemyPrefab;
@@ -392,6 +473,7 @@ namespace SystemicOverload.EditorTools
             return created;
         }
 
+<<<<<<< HEAD
         private static QuestDefinition EnsureQuestDefinitionAsset()
         {
             string assetPath = $"{DataFolder}/Quest_PhaseValidation.asset";
@@ -418,6 +500,8 @@ namespace SystemicOverload.EditorTools
             SetPrivateField(questService, "demoQuest", questDefinition);
         }
 
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
         private static void AddSceneToBuildSettings(string scenePath)
         {
             System.Collections.Generic.List<EditorBuildSettingsScene> buildScenes = EditorBuildSettings.scenes.ToList();
@@ -461,6 +545,7 @@ namespace SystemicOverload.EditorTools
                 return;
             }
 
+<<<<<<< HEAD
             UnityEngine.Object.DestroyImmediate(targetComponent);
         }
 
@@ -475,6 +560,13 @@ namespace SystemicOverload.EditorTools
                 return;
             }
 
+=======
+            Object.DestroyImmediate(targetComponent);
+        }
+
+        private static void SetPrivateField<TTarget>(TTarget targetObject, string fieldName, object value)
+        {
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
             FieldInfo targetField = typeof(TTarget).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
             if (targetField == null)
             {

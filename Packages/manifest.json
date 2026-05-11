@@ -1,6 +1,8 @@
 {
   "dependencies": {
+    "com.unity.addressables": "2.9.1",
     "com.unity.ai.navigation": "2.0.10",
+    "com.unity.cinemachine": "3.1.6",
     "com.unity.collab-proxy": "2.11.3",
     "com.unity.ide.rider": "3.0.39",
     "com.unity.ide.visualstudio": "2.0.26",
@@ -9,7 +11,11 @@
     "com.unity.test-framework": "1.6.0",
     "com.unity.timeline": "1.8.10",
     "com.unity.ugui": "2.0.0",
+<<<<<<< HEAD
 <<<<<<< Updated upstream
+=======
+    "com.unity.visualeffectgraph": "17.3.0",
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
     "com.unity.visualscripting": "1.9.9",
 =======
     "com.unity.visualeffectgraph": "17.3.0",

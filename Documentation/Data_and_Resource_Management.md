@@ -31,6 +31,7 @@
   - Prefab 직접 참조 대신 가능하면 Address Key를 우선 사용
   - Weapon 변경 시 HUD, SFX, VFX 연동 포인트를 문서화
 
+<<<<<<< HEAD
 ## 2.3 EncounterSpawnData
 - 사용 대상: 인카운터(구역 이벤트·퀘스트 연동)에서 풀 기반 적 스폰
 - 필드 예시:
@@ -43,6 +44,18 @@
 ## 2.4 QuestDefinition
 - 사용 대상: 최소 퀘스트 목표(예: 풀 적 처치 수)
 - 규칙: 진행도는 `SaveLoadService`와 동기화
+=======
+## 2.3 WaveData
+- 사용 대상: Stage 진행/스폰 제어
+- 필드 예시:
+  - `WaveIndex`
+  - `SpawnEntries`(Enemy Type, Count, Interval)
+  - `WaveDuration`
+  - `EliteRule`
+- 규칙:
+  - Wave 스크립트는 순수 실행기(Executor)로 유지
+  - 구성 정보는 WaveData 에셋에서만 관리
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 
 ## 3. Addressables 운영 정책
 
@@ -60,8 +73,13 @@
 
 ### 3.2 Load Sequence
 1. Boot 단계에서 공통 UI/핵심 에셋 초기화
+<<<<<<< HEAD
 2. 스테이지/던전 진입 시 환경 + 기본 Enemy 선로드
 3. 인카운터 또는 다음 구역 진입 전 보조 에셋 프리로드
+=======
+2. Stage 진입 시 Stage 환경 + 기본 Enemy 선로드
+3. Wave 진행 중 다음 Wave 에셋 프리로드
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 4. 전환 시 불필요 에셋 즉시 릴리즈
 
 ### 3.3 Unload and Lifetime
@@ -85,7 +103,11 @@
   - 에디터 Validation 로그를 통해 원인 추적
 
 ## 6. 데이터 운영 체크리스트
+<<<<<<< HEAD
 - 신규 Enemy 추가가 `StatData`, `EncounterSpawnData`, Address Label만으로 가능한가?
+=======
+- 신규 Enemy 추가가 `StatData`, `WaveData`, Address Label만으로 가능한가?
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 - Weapon 밸런스 변경이 코드 수정 없이 가능한가?
 - Stage 전환 후 Addressable 핸들이 모두 해제되는가?
 - 전투 중 로딩으로 인한 Hitch가 허용 범위 내인가?

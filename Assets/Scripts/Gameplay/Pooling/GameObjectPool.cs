@@ -4,8 +4,12 @@ using UnityEngine;
 namespace SystemicOverload.Pooling
 {
     /// <summary>
+<<<<<<< HEAD
     /// 한국어 주석: 단일 프리팹 기준의 간단한 GameObject Pool입니다. 인카운터·VFX 등 싱글 RPG 런타임에서 재사용합니다.
     /// 중복 Release/외부 인스턴스 반환을 ownership 추적으로 차단하고, IPooledObject 훅을 통해 재사용 초기화를 일관화합니다.
+=======
+    /// 한국어 주석: 단일 프리팹 기준의 간단한 GameObject Pool입니다. Validation 및 Phase 3 전투 데이터 검증에 사용합니다.
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
     /// </summary>
     public sealed class GameObjectPool : MonoBehaviour
     {
@@ -13,6 +17,7 @@ namespace SystemicOverload.Pooling
         [SerializeField] private int prewarmCount = 4;
         [SerializeField] private Transform poolRoot;
         [SerializeField] private bool resetAnimatorOnSpawn = true;
+<<<<<<< HEAD
         [Tooltip("스폰 시 PooledReturnTrigger가 있으면 자동으로 풀 참조를 주입합니다. lifetime은 트리거 컴포넌트의 기본값을 사용합니다.")]
         [SerializeField] private bool autoConfigurePooledReturnTrigger = true;
 
@@ -26,6 +31,13 @@ namespace SystemicOverload.Pooling
         public GameObject Prefab => prefab;
         public int AvailableCount => availableInstances.Count;
         public int OwnedCount => ownedInstances.Count;
+=======
+
+        private readonly Queue<GameObject> availableInstances = new Queue<GameObject>();
+        private bool warmedUp;
+
+        public GameObject Prefab => prefab;
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 
         private void Awake()
         {
@@ -55,10 +67,17 @@ namespace SystemicOverload.Pooling
             warmedUp = true;
             for (int index = 0; index < prewarmCount; index++)
             {
+<<<<<<< HEAD
                 GameObject instance = CreateNewInstance();
                 instance.SetActive(false);
                 availableInstances.Enqueue(instance);
                 instancesInPool.Add(instance);
+=======
+                GameObject instance = Instantiate(prefab, poolRoot);
+                instance.name = $"{prefab.name}_Pooled";
+                instance.SetActive(false);
+                availableInstances.Enqueue(instance);
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
             }
         }
 
@@ -77,19 +96,31 @@ namespace SystemicOverload.Pooling
                     return null;
                 }
 
+<<<<<<< HEAD
                 instance = CreateNewInstance();
+=======
+                instance = Instantiate(prefab, poolRoot);
+                instance.name = $"{prefab.name}_Pooled";
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
             }
 
             instance.transform.SetPositionAndRotation(worldPosition, worldRotation);
             instance.SetActive(true);
             ApplyAnimatorResetIfNeeded(instance);
+<<<<<<< HEAD
             ConfigurePooledReturnTriggerIfNeeded(instance);
             NotifySpawned(instance);
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
             return instance;
         }
 
         /// <summary>
+<<<<<<< HEAD
         /// 한국어 주석: 인스턴스를 비활성화하고 풀에 반환합니다. 중복 반환과 외부 인스턴스 반환을 방지합니다.
+=======
+        /// 한국어 주석: 인스턴스를 비활성화하고 풀에 반환합니다.
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
         /// </summary>
         public void Release(GameObject instance)
         {
@@ -98,6 +129,7 @@ namespace SystemicOverload.Pooling
                 return;
             }
 
+<<<<<<< HEAD
             // 한국어 주석: 이 풀이 만든 인스턴스가 아니면 받지 않습니다(풀 오염 방지).
             if (!ownedInstances.Contains(instance))
             {
@@ -132,6 +164,11 @@ namespace SystemicOverload.Pooling
 
             link.Initialize(this);
             return instance;
+=======
+            instance.SetActive(false);
+            instance.transform.SetParent(poolRoot, false);
+            availableInstances.Enqueue(instance);
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
         }
 
         private GameObject TryDequeueExisting()
@@ -139,6 +176,7 @@ namespace SystemicOverload.Pooling
             while (availableInstances.Count > 0)
             {
                 GameObject candidate = availableInstances.Dequeue();
+<<<<<<< HEAD
                 if (candidate == null)
                 {
                     // 한국어 주석: 외부 파괴된 인스턴스는 ownership과 in-pool 집합에서도 정리합니다.
@@ -147,6 +185,12 @@ namespace SystemicOverload.Pooling
 
                 instancesInPool.Remove(candidate);
                 return candidate;
+=======
+                if (candidate != null)
+                {
+                    return candidate;
+                }
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
             }
 
             return null;
@@ -169,6 +213,7 @@ namespace SystemicOverload.Pooling
             animator.Rebind();
             animator.Update(0.0f);
         }
+<<<<<<< HEAD
 
         private void ConfigurePooledReturnTriggerIfNeeded(GameObject instance)
         {
@@ -215,5 +260,7 @@ namespace SystemicOverload.Pooling
                 handlers[handlerIndex].OnReturnedToPool();
             }
         }
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
     }
 }

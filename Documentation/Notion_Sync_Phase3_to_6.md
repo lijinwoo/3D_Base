@@ -3,8 +3,11 @@
 ## 목적
 MVP 로드맵의 **문서 ↔ Notion ↔ Git 태그**를 Phase 3 이후에도 동일한 패턴으로 유지합니다.
 
+<<<<<<< HEAD
 > **2026-05 업데이트:** 부모 Notion 페이지 `35537e0b48d8816a85c3c747f658050a`를 **Hybrid Single-player RPG** 기준으로 갱신했습니다(Roguelite/Wave 중심 서술 제거, Encounter/Quest/Save 반영).
 
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 ## 기준 Notion 페이지
 
 | 용도 | Page ID | 비고 |

@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 using System;
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 using SystemicOverload.Data;
 using SystemicOverload.Phase1;
 using UnityEngine;
@@ -8,14 +11,20 @@ namespace SystemicOverload.Combat
     /// <summary>
     /// 기본 원거리(레이캐스트) 공격과 발사 간격을 처리합니다. Animator가 있으면 Attack 트리거를 전달합니다.
     /// <para>한국어 주석: 레이는 <see cref="hitLayerMask"/>만 통과하므로, 플레이어/환경/적 Layer를 명시하는 것이 안전합니다.</para>
+<<<<<<< HEAD
     /// <para>한국어 주석: 자기 자신(루트 동일)/자식 콜라이더는 거리 정렬된 다중 hit 중에서 자동으로 skip되어, 다음 유효 타겟을 탐색합니다.</para>
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
     /// </summary>
     [RequireComponent(typeof(InputProvider))]
     public sealed class CombatComponent : MonoBehaviour
     {
         private const string AttackTriggerParameterName = "AttackTrig";
+<<<<<<< HEAD
         // 한국어 주석: RaycastNonAlloc 버퍼 크기. 한 발 안에서 가능한 hit 수 상한이며, 너무 작으면 뒤쪽 적이 누락될 수 있습니다.
         private const int HitScanBufferSize = 16;
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 
         [Header("Weapon")]
         [Tooltip("설정 시 인스펙터의 숫자 값보다 ScriptableObject 값이 우선합니다(런타임 초기화).")]
@@ -35,8 +44,11 @@ namespace SystemicOverload.Combat
         private InputProvider inputProvider;
         private float nextAllowedShotTime;
         private bool loggedMissingInputProvider;
+<<<<<<< HEAD
         // 한국어 주석: 매 발사마다 GC 할당이 발생하지 않도록 RaycastHit 버퍼를 재사용합니다.
         private readonly RaycastHit[] hitScanBuffer = new RaycastHit[HitScanBufferSize];
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 
         private static readonly int AttackTriggerHash = Animator.StringToHash(AttackTriggerParameterName);
 
@@ -93,7 +105,10 @@ namespace SystemicOverload.Combat
 
         /// <summary>
         /// 히트 스캔 한 발을 수행하고, 맞은 대상에 <see cref="IDamageable"/> 데미지를 적용합니다.
+<<<<<<< HEAD
         /// <para>한국어 주석: RaycastNonAlloc + 거리 정렬로 자기 자신(루트 동일)을 skip하고, 첫 유효 IDamageable에 데미지를 적용합니다.</para>
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
         /// </summary>
         private void TryFireHitScan()
         {
@@ -108,12 +123,17 @@ namespace SystemicOverload.Combat
                 direction.Normalize();
             }
 
+<<<<<<< HEAD
             int hitCount = Physics.RaycastNonAlloc(origin, direction, hitScanBuffer, maxRange, hitLayerMask, QueryTriggerInteraction.Ignore);
             if (hitCount <= 0)
+=======
+            if (!Physics.Raycast(origin, direction, out RaycastHit hitInfo, maxRange, hitLayerMask, QueryTriggerInteraction.Ignore))
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
             {
                 return;
             }
 
+<<<<<<< HEAD
             // 한국어 주석: RaycastNonAlloc는 거리 정렬을 보장하지 않으므로, 가까운 hit부터 검사하기 위해 정렬합니다.
             Array.Sort(hitScanBuffer, 0, hitCount, RaycastHitDistanceComparer.Instance);
 
@@ -161,6 +181,25 @@ namespace SystemicOverload.Combat
             {
                 return lhs.distance.CompareTo(rhs.distance);
             }
+=======
+            if (hitInfo.collider != null && hitInfo.collider.transform.IsChildOf(transform))
+            {
+                return;
+            }
+
+            IDamageable damageable = hitInfo.collider.GetComponentInParent<IDamageable>();
+            if (damageable == null || !damageable.IsAlive)
+            {
+                return;
+            }
+
+            DamagePayload payload = new DamagePayload
+            {
+                Amount = damage,
+                Attacker = transform
+            };
+            damageable.ApplyDamage(in payload);
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
         }
 
         private Vector3 ResolveFireDirection()

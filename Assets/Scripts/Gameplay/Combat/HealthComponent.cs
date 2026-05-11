@@ -24,7 +24,10 @@ namespace SystemicOverload.Combat
 
         /// <summary>
         /// 사망 시 한 번 호출됩니다.
+<<<<<<< HEAD
         /// <para>한국어 주석: 싱글 RPG에서는 퀘스트 갱신·풀 반환·루팅 등을 PooledEnemyReleaseOnDeath 같은 리스너에서 구독합니다.</para>
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
         /// </summary>
         public event Action Died;
 

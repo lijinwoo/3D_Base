@@ -4,9 +4,15 @@
 ## 1. Project Overview
 
 ### 1.1 Genre and Core Experience
+<<<<<<< HEAD
 - Genre: 3D Top-down Action / Hybrid Single-player RPG
 - Core Experience: 탐험·퀘스트·성장(영속 진행)과 전투를 결합한 루프 — `Skill`, `Positioning`, `Cooldown`으로 인카운터를 처리하고 보상으로 캐릭터를 강화
 - Session Goal: 세이브 기반 캠페인 진행(챕터/목표 단위)과 월드 상태 유지
+=======
+- Genre: 3D Top-down Action / Roguelite MVP
+- Core Experience: 몰려오는 적의 압박 속에서 `Skill`, `Positioning`, `Cooldown`을 시스템적으로 운영하여 생존 시간을 극대화하는 전투 루프
+- Session Goal: 단일 런에서 점진적으로 강해지며 Wave를 버티는 성장 체감 제공
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 
 ### 1.2 Design Philosophy
 - `Decoupling`
@@ -14,13 +20,18 @@
   - 시스템 교체 비용(예: 무기 시스템 확장, AI 교체)을 낮춥니다.
 - `Scalability`
   - 기획 데이터는 `ScriptableObject`로 분리해 코드 수정 없이 콘텐츠를 확장합니다.
+<<<<<<< HEAD
   - Enemy/Weapon/EncounterSpawn 추가 시 재컴파일 없이 데이터만 추가 가능해야 합니다.
+=======
+  - Enemy/Weapon/Wave 추가 시 재컴파일 없이 데이터만 추가 가능해야 합니다.
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 - `Performance`
   - `Object Pooling`으로 `Instantiate/Destroy`를 억제합니다.
   - `Addressables`로 필요한 순간에만 로드하고 즉시 해제해 메모리 피크를 관리합니다.
 
 ### 1.3 Technical Scope (MVP)
 - 포함:
+<<<<<<< HEAD
   - Player 이동/회전, 기본 전투, Enemy 추적/공격, 인카운터(풀 기반 스폰) + 최소 퀘스트/세이브(JSON)
   - `ScriptableObject` 기반 Stat/Weapon/EncounterSpawn/QuestDefinition 데이터
   - `WorldStateService` / `QuestService` / `SaveLoadService` 기반 RPG 진행
@@ -28,6 +39,14 @@
   - `VFX Graph`/`Shuriken`/`Cinemachine` 기반 피드백
 - 제외:
   - 멀티플레이, 서비스형 라이브 운영, 복잡한 스킬 트리 전체(단계적 확장)
+=======
+  - Player 이동/회전, 기본 전투, Enemy 추적/공격, Wave 스폰
+  - `ScriptableObject` 기반 Stat/Weapon/Wave 데이터 운영
+  - `Addressables` 기반 리소스 로드
+  - `VFX Graph`/`Shuriken`/`Cinemachine` 기반 피드백
+- 제외:
+  - 멀티플레이, 인벤토리 메타 루프, 복잡한 스킬 트리, 저장/로드 고도화
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 
 ## 2. System Architecture Summary
 
@@ -36,7 +55,11 @@
 
 | Component | Responsibility | 주요 입력 | 주요 출력 |
 |---|---|---|---|
+<<<<<<< HEAD
 | `HealthComponent` | HP, Damage 처리, 사망 상태 전환 | `IDamageable.ApplyDamage()` | `Damaged`, `Died` Event |
+=======
+| `HealthComponent` | HP, Damage 처리, 사망 상태 전환 | `IDamageable.ApplyDamage()` | `OnDamaged`, `OnDead` Event |
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 | `MovementComponent` | 이동/가속/감속/회전 보간 | 이동 벡터, 커서 월드 위치 | 현재 이동 상태, 회전 결과 |
 | `CombatComponent` | 공격 실행, 쿨타임/연사 제어 | 공격 입력, WeaponData | Projectile Spawn, Hit 처리 |
 | `InputProvider` | `Input System` 입력 수집/정규화 | Player Input Action | Move/Aim/Attack Command |
@@ -89,16 +112,27 @@
 ### 4.1 ScriptableObject Data-Driven Policy
 - `StatData`: MaxHP, MoveSpeed, Defense, CritRate
 - `WeaponData`: Damage, FireRate, ProjectileRef, VFX/SFXRef
+<<<<<<< HEAD
 - `EncounterSpawnData`: 풀 기반 인카운터 스폰 개수·간격·반경(구역 이벤트·퀘스트와 연동 가능)
 - `QuestDefinition`: 퀘스트 ID, 목표 처치 수 등 최소 목표 정의
 - 규칙:
   - 템플릿 SO와 런타임 시트(`CharacterStatRuntimeSheet` 등)를 분리합니다.
+=======
+- `WaveData`: SpawnTable, SpawnInterval, EliteSpawnRule
+- 규칙:
+  - 런타임에서 수정되는 값과 원본 데이터를 분리합니다.
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
   - 밸런싱은 SO 에셋 변경만으로 가능해야 합니다.
 
 ### 4.2 Addressables Policy
 - 비동기 로딩:
+<<<<<<< HEAD
   - 스테이지/던전 진입 시 필요한 Enemy/Weapon/VFX를 선로드
   - 인카운터 또는 다음 구역 진입 전 보조 에셋을 백그라운드 로딩
+=======
+  - Stage 시작 시 필요한 Enemy/Weapon/VFX를 선로드
+  - Wave 진입 직전 다음 Wave 에셋을 백그라운드 로딩
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 - 해제:
   - Stage 종료/씬 전환 시 `Addressables.Release` 일괄 수행
 - 목표:
@@ -121,9 +155,14 @@
 
 ## 6. MVP Success Criteria
 - 전투 루프가 10분 이상 안정적으로 유지됩니다.
+<<<<<<< HEAD
 - 인카운터·전투 구간에서 프레임 드랍이 반복적으로 발생하지 않습니다.
 - Enemy/Weapon/Encounter 콘텐츠 추가 시 코드 변경 없이 데이터 확장이 가능합니다.
 - 세이브/로드가 퀘스트·월드 플래그·처치 수 등 핵심 RPG 상태를 유실 없이 보존합니다.
+=======
+- Wave 진행 중 프레임 드랍이 반복적으로 발생하지 않습니다.
+- Enemy/Weapon/Wave 콘텐츠 추가 시 코드 변경 없이 데이터 확장이 가능합니다.
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 - 주요 리소스 로딩/해제가 `Addressables` 정책에 맞게 동작합니다.
 
 ## 7. Risk and Mitigation

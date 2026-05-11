@@ -8,7 +8,11 @@ namespace SystemicOverload.EditorTools
     /// </summary>
     public static class Phase6ProfilingMenu
     {
+<<<<<<< HEAD
         [MenuItem("Tools/Systemic Overload/RPG Vertical Slice/Open Unity Profiler Window")]
+=======
+        [MenuItem("Tools/Systemic Overload/Phase 6/Open Unity Profiler Window")]
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
         public static void OpenProfilerWindow()
         {
             EditorApplication.ExecuteMenuItem("Window/Analysis/Profiler");

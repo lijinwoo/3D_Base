@@ -124,7 +124,11 @@
   - `ScriptableObject` 기반 데이터 구조 정착
 - 산출물:
   - Projectile/VFX Pool
+<<<<<<< HEAD
   - `StatData`, `WeaponData`, `EncounterSpawnData`, `QuestDefinition`
+=======
+  - `StatData`, `WeaponData`, `WaveData`
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
   - Validation Scene: `Phase_03_CombatDataValidation.unity`
 - Animation 산출물:
   - Pool 재스폰 시 `Animator` 상태 리셋 규정 확정(`Rebind`, 강제 `Play(Default)` 등)

@@ -26,6 +26,7 @@
 ## Unity 에디터 메뉴
 
 `Tools/Systemic Overload/Phase 6/Open Unity Profiler Window` — Profiler 창을 엽니다.
+<<<<<<< HEAD
 `Tools/Systemic Overload/Phase Validation/Build Phase 6 Final Profiling Scene` — Phase 1~6 통합 Validation Scene을 생성합니다.
 
 ## 통합 검증 범위 (Final Scene)
@@ -36,6 +37,8 @@
 - **Phase 4**: NavMeshSurface + EnemyNavMeshChaser
 - **Phase 5**: AddressablesWarmupUtility + AddressablesOneShotVfx
 - **Phase 6**: Profiling Marker 배치 및 단일 scene 스모크 검증
+=======
+>>>>>>> 29fbfa50cf419c0d688f39bdbd0021df496917ec
 
 ## Done 기준 (Phase 6 스냅샷)
 
