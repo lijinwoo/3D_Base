@@ -1,0 +1,7 @@
+﻿<Solution>
+  <Project Path="SystemicOverload.Gameplay.csproj" />
+  <Project Path="SystemicOverload.Tests.PlayMode.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="SystemicOverload.EditorTools.csproj" />
+  <Project Path="SystemicOverload.Tests.EditMode.csproj" />
+</Solution>

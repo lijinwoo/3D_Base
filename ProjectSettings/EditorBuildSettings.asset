@@ -6,8 +6,28 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+<<<<<<< Updated upstream
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+=======
+    path: Assets/01.Scenes/PhaseValidation/Phase_01_MovementValidation.unity
+    guid: d585c689a0c40c449b53c8635f84e2dc
+  - enabled: 1
+    path: Assets/01.Scenes/PhaseValidation/Phase_02_DamageWeaponValidation.unity
+    guid: 743035c59df63cb44937d830d1841f5b
+  - enabled: 1
+    path: Assets/01.Scenes/PhaseValidation/Phase_03_CombatDataValidation.unity
+    guid: 623622d253eab0e4bb53528a8f376266
+  - enabled: 1
+    path: Assets/01.Scenes/PhaseValidation/Phase_04_AINavigationValidation.unity
+    guid: f148f1d0d387bff4ba42fd0f19d50afa
+  - enabled: 1
+    path: Assets/01.Scenes/PhaseValidation/Phase_05_AddressablesVFXValidation.unity
+    guid: fa0043e34845696468c2cb7ce74da318
+  - enabled: 1
+    path: Assets/01.Scenes/PhaseValidation/Phase_06_FinalProfilingValidation.unity
+    guid: 9e108397b28dfe64eac74181d7dcb539
+>>>>>>> Stashed changes
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
