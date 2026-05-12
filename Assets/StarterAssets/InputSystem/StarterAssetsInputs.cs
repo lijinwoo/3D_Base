@@ -66,6 +66,19 @@ namespace StarterAssets
 			sprint = newSprintState;
 		}
 
+		/// <summary>
+		/// 한국어 주석: 현재 프레임에 마우스 좌 클릭이 시작되었는지 반환합니다.
+		/// Raycast/상호작용 등에서 공통 입력으로 재사용합니다.
+		/// </summary>
+		public bool WasPrimaryClickPressedThisFrame()
+		{
+#if ENABLE_INPUT_SYSTEM
+			return Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
+#else
+			return Input.GetMouseButtonDown(0);
+#endif
+		}
+
 		private void OnApplicationFocus(bool hasFocus)
 		{
 			SetCursorState(cursorLocked);
