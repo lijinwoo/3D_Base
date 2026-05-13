@@ -1,4 +1,5 @@
 using SystemicOverload.Phase1;
+using SystemicOverload.PhysicsQuery;
 using UnityEngine;
 
 namespace SystemicOverload.Combat
@@ -27,6 +28,7 @@ namespace SystemicOverload.Combat
         [SerializeField] private Animator animator;
         [SerializeField] private Camera aimCamera;
         [SerializeField] private Transform muzzlePoint;
+        [SerializeField] private TpsPhysicsQueryService physicsQueryService;
 
         private InputProvider inputProvider;
         private float nextAllowedShotTime;
@@ -37,6 +39,11 @@ namespace SystemicOverload.Combat
         {
             inputProvider = GetComponent<InputProvider>();
             movementComponent ??= GetComponent<MovementComponent>();
+            physicsQueryService ??= GetComponent<TpsPhysicsQueryService>();
+            if (physicsQueryService == null)
+            {
+                physicsQueryService = gameObject.AddComponent<TpsPhysicsQueryService>();
+            }
         }
 
         private void OnValidate()
@@ -81,18 +88,14 @@ namespace SystemicOverload.Combat
 
             Vector3 step1AimPoint = ResolveCameraAimPoint(cameraRay);
             Vector3 muzzleOrigin = ResolveMuzzleOrigin();
-            Vector3 muzzleToAim = step1AimPoint - muzzleOrigin;
-            if (muzzleToAim.sqrMagnitude < 0.0001f)
-            {
-                muzzleToAim = transform.forward;
-            }
-
-            Vector3 step2Direction = muzzleToAim.normalized;
-            float step2Distance = Mathf.Min(maxRange, muzzleToAim.magnitude + muzzleAimPaddingDistance);
-            if (step2Distance <= 0.0001f)
-            {
-                step2Distance = maxRange;
-            }
+            TpsAimComputation.BuildMuzzleCast(
+                muzzleOrigin,
+                step1AimPoint,
+                transform.forward,
+                maxRange,
+                muzzleAimPaddingDistance,
+                out Vector3 step2Direction,
+                out float step2Distance);
 
             if (drawDebugRay)
             {
@@ -100,12 +103,14 @@ namespace SystemicOverload.Combat
                 Debug.DrawRay(muzzleOrigin, step2Direction * step2Distance, Color.cyan, 0.2f);
             }
 
-            if (!Physics.Raycast(muzzleOrigin, step2Direction, out RaycastHit hitInfo, step2Distance, hitLayerMask, QueryTriggerInteraction.Ignore))
-            {
-                return;
-            }
-
-            if (hitInfo.collider != null && hitInfo.collider.transform.IsChildOf(transform))
+            if (!physicsQueryService.TryRaycast(
+                    muzzleOrigin,
+                    step2Direction,
+                    step2Distance,
+                    hitLayerMask,
+                    out RaycastHit hitInfo,
+                    QueryTriggerInteraction.Ignore,
+                    transform))
             {
                 return;
             }
@@ -143,18 +148,23 @@ namespace SystemicOverload.Combat
                 return false;
             }
 
-            cameraRay = targetCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
-            return true;
+            return TpsAimComputation.TryBuildCenterRay(targetCamera, out cameraRay);
         }
 
         private Vector3 ResolveCameraAimPoint(Ray cameraRay)
         {
-            if (Physics.Raycast(cameraRay, out RaycastHit cameraHit, cameraAimRayMaxDistance, hitLayerMask, QueryTriggerInteraction.Ignore))
+            if (physicsQueryService.TryRaycast(
+                    cameraRay,
+                    cameraAimRayMaxDistance,
+                    hitLayerMask,
+                    out RaycastHit cameraHit,
+                    QueryTriggerInteraction.Ignore,
+                    transform))
             {
                 return cameraHit.point;
             }
 
-            return cameraRay.origin + cameraRay.direction * maxRange;
+            return TpsAimComputation.ResolveFallbackAimPoint(cameraRay, maxRange);
         }
 
         private Vector3 ResolveMuzzleOrigin()

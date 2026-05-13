@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using SystemicOverload.PhysicsQuery;
 using UnityEngine;
 
 namespace SystemicOverload.Phase1
@@ -49,6 +50,7 @@ namespace SystemicOverload.Phase1
         [SerializeField] private LayerMask collisionMask = ~0;
         [SerializeField] private float collisionSphereRadius = 0.2f;
         [SerializeField] private float collisionBuffer = 0.12f;
+        [SerializeField] private TpsPhysicsQueryService physicsQueryService;
 
         [Header("Environment Transition")]
         [SerializeField] private float waterSurfaceHeight = -1000.0f;
@@ -78,6 +80,11 @@ namespace SystemicOverload.Phase1
             {
                 currentYaw = followTarget.eulerAngles.y;
                 CacheTargetRenderers();
+            }
+
+            if (physicsQueryService == null && followTarget != null)
+            {
+                physicsQueryService = followTarget.GetComponent<TpsPhysicsQueryService>();
             }
         }
 
@@ -136,6 +143,15 @@ namespace SystemicOverload.Phase1
             if (movementComponent == null)
             {
                 movementComponent = followTarget.GetComponent<MovementComponent>();
+            }
+
+            if (physicsQueryService == null && followTarget != null)
+            {
+                physicsQueryService = followTarget.GetComponent<TpsPhysicsQueryService>();
+                if (physicsQueryService == null)
+                {
+                    physicsQueryService = followTarget.gameObject.AddComponent<TpsPhysicsQueryService>();
+                }
             }
 
             if (cachedRendererTarget != followTarget)
@@ -233,7 +249,15 @@ namespace SystemicOverload.Phase1
                 return 0.0f;
             }
 
-            if (Physics.SphereCast(pivotPosition, collisionSphereRadius, desiredDirection, out RaycastHit hitInfo, desiredDistance, collisionMask, QueryTriggerInteraction.Ignore))
+            if (physicsQueryService != null
+                && physicsQueryService.TrySphereCast(
+                    new Ray(pivotPosition, desiredDirection),
+                    collisionSphereRadius,
+                    desiredDistance,
+                    collisionMask,
+                    out RaycastHit hitInfo,
+                    QueryTriggerInteraction.Ignore,
+                    followTarget))
             {
                 return Mathf.Max(hitInfo.distance - collisionBuffer, 0.0f);
             }

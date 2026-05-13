@@ -1,5 +1,6 @@
 using SystemicOverload.Combat;
 using SystemicOverload.Interaction;
+using SystemicOverload.PhysicsQuery;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -35,6 +36,7 @@ namespace SystemicOverload.Phase1
             }
 
             GameObject playerObject = playerInputProvider.gameObject;
+            EnsureComponent<TpsPhysicsQueryService>(playerObject);
             EnsureComponent<TpsRayInteractor>(playerObject);
             EnsureComponent<TpsMeleeAttackComponent>(playerObject);
             EnsureComponent<TpsMagicSphereCastComponent>(playerObject);

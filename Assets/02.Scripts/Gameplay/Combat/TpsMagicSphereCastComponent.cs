@@ -1,4 +1,5 @@
 using SystemicOverload.Phase1;
+using SystemicOverload.PhysicsQuery;
 using UnityEngine;
 
 namespace SystemicOverload.Combat
@@ -17,6 +18,7 @@ namespace SystemicOverload.Combat
         [SerializeField] private LayerMask hitMask = ~0;
         [SerializeField] private GameObject hitFxPrefab;
         [SerializeField] private bool drawGizmo = true;
+        [SerializeField] private TpsPhysicsQueryService physicsQueryService;
 
         private InputProvider inputProvider;
         private float nextAllowedCastTime;
@@ -31,6 +33,12 @@ namespace SystemicOverload.Combat
             if (aimCamera == null)
             {
                 aimCamera = Camera.main;
+            }
+
+            physicsQueryService ??= GetComponent<TpsPhysicsQueryService>();
+            if (physicsQueryService == null)
+            {
+                physicsQueryService = gameObject.AddComponent<TpsPhysicsQueryService>();
             }
         }
 
@@ -69,7 +77,11 @@ namespace SystemicOverload.Combat
                 }
             }
 
-            Ray centerRay = aimCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
+            if (!TpsAimComputation.TryBuildCenterRay(aimCamera, out Ray centerRay))
+            {
+                return;
+            }
+
             if (!TrySphereCastExcludeSelf(centerRay, out RaycastHit hitInfo))
             {
                 lastCastOrigin = centerRay.origin;
@@ -107,32 +119,14 @@ namespace SystemicOverload.Combat
 
         private bool TrySphereCastExcludeSelf(Ray ray, out RaycastHit bestHit)
         {
-            RaycastHit[] allHits = Physics.SphereCastAll(ray, radius, range, hitMask, QueryTriggerInteraction.Ignore);
-            bestHit = default;
-            float bestDistance = float.MaxValue;
-            bool found = false;
-            for (int index = 0; index < allHits.Length; index++)
-            {
-                RaycastHit candidateHit = allHits[index];
-                if (candidateHit.collider == null)
-                {
-                    continue;
-                }
-
-                if (candidateHit.collider.transform.IsChildOf(transform))
-                {
-                    continue;
-                }
-
-                if (candidateHit.distance < bestDistance)
-                {
-                    bestDistance = candidateHit.distance;
-                    bestHit = candidateHit;
-                    found = true;
-                }
-            }
-
-            return found;
+            return physicsQueryService.TrySphereCast(
+                ray,
+                radius,
+                range,
+                hitMask,
+                out bestHit,
+                QueryTriggerInteraction.Ignore,
+                transform);
         }
 
         private void OnDrawGizmosSelected()

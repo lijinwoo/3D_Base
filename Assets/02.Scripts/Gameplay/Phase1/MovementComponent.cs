@@ -1,3 +1,4 @@
+using SystemicOverload.PhysicsQuery;
 using UnityEngine;
 
 namespace SystemicOverload.Phase1
@@ -23,6 +24,7 @@ namespace SystemicOverload.Phase1
         [SerializeField] private LayerMask groundLayerMask = ~0;
         [SerializeField] private float aimRayMaxDistance = 300.0f;
         [SerializeField] private Phase1OrbitCameraController orbitCameraController;
+        [SerializeField] private TpsPhysicsQueryService physicsQueryService;
 
         private CharacterController characterController;
         private InputProvider inputProvider;
@@ -49,6 +51,11 @@ namespace SystemicOverload.Phase1
             characterController = GetComponent<CharacterController>();
             inputProvider = GetComponent<InputProvider>();
             TryResolveOrbitCameraController();
+            physicsQueryService ??= GetComponent<TpsPhysicsQueryService>();
+            if (physicsQueryService == null)
+            {
+                physicsQueryService = gameObject.AddComponent<TpsPhysicsQueryService>();
+            }
         }
 
         private void OnValidate()
@@ -177,7 +184,13 @@ namespace SystemicOverload.Phase1
             }
 
             Ray aimRay = targetCamera.ScreenPointToRay(inputProvider.PointerScreenPosition);
-            if (!Physics.Raycast(aimRay, out RaycastHit hitInfo, aimRayMaxDistance, groundLayerMask, QueryTriggerInteraction.Ignore))
+            if (!physicsQueryService.TryRaycast(
+                    aimRay,
+                    aimRayMaxDistance,
+                    groundLayerMask,
+                    out RaycastHit hitInfo,
+                    QueryTriggerInteraction.Ignore,
+                    transform))
             {
                 return;
             }

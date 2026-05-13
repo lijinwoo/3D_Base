@@ -1,4 +1,5 @@
 using System;
+using SystemicOverload.Data;
 using UnityEngine;
 
 namespace SystemicOverload.Combat
@@ -11,6 +12,10 @@ namespace SystemicOverload.Combat
         [Header("Health")]
         [SerializeField] private float maxHealth = 100.0f;
         [SerializeField] private float currentHealth = 100.0f;
+
+        [Header("Definition")]
+        [SerializeField] private EnemyDefinitionSO enemyDefinition;
+        [SerializeField] private bool useDefinitionData = true;
 
         /// <summary>
         /// 피해 적용 직후(사망 전)에 호출됩니다. UI/VFX 연동에 사용합니다.
@@ -28,13 +33,29 @@ namespace SystemicOverload.Combat
 
         private void Awake()
         {
+            ApplyDefinitionIfAvailable();
             currentHealth = Mathf.Clamp(currentHealth, 0.0f, maxHealth);
         }
 
         private void OnValidate()
         {
+            ApplyDefinitionIfAvailable();
             maxHealth = Mathf.Max(1.0f, maxHealth);
             currentHealth = Mathf.Clamp(currentHealth, 0.0f, maxHealth);
+        }
+
+        /// <summary>
+        /// Definition 에셋이 연결된 경우 인스펙터 값을 데이터 기준으로 동기화합니다.
+        /// </summary>
+        private void ApplyDefinitionIfAvailable()
+        {
+            if (!useDefinitionData || enemyDefinition == null)
+            {
+                return;
+            }
+
+            maxHealth = enemyDefinition.MaxHealth;
+            currentHealth = enemyDefinition.InitialHealth;
         }
 
         /// <inheritdoc />

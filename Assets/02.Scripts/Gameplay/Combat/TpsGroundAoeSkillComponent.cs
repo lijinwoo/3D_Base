@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using SystemicOverload.Phase1;
+using SystemicOverload.PhysicsQuery;
 using UnityEngine;
 
 namespace SystemicOverload.Combat
@@ -23,6 +24,7 @@ namespace SystemicOverload.Combat
 
         [Header("NonAlloc")]
         [SerializeField] private int bufferSize = 32;
+        [SerializeField] private TpsPhysicsQueryService physicsQueryService;
 
         private readonly HashSet<IDamageable> damagedTargets = new HashSet<IDamageable>();
         private InputProvider inputProvider;
@@ -37,6 +39,12 @@ namespace SystemicOverload.Combat
             if (aimCamera == null)
             {
                 aimCamera = Camera.main;
+            }
+
+            physicsQueryService ??= GetComponent<TpsPhysicsQueryService>();
+            if (physicsQueryService == null)
+            {
+                physicsQueryService = gameObject.AddComponent<TpsPhysicsQueryService>();
             }
 
             EnsureBuffer();
@@ -80,14 +88,24 @@ namespace SystemicOverload.Combat
 
             EnsureBuffer();
 
-            Ray centerRay = aimCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
-            if (!Physics.Raycast(centerRay, out RaycastHit groundHit, aimRange, groundMask, QueryTriggerInteraction.Ignore))
+            if (!TpsAimComputation.TryBuildCenterRay(aimCamera, out Ray centerRay))
+            {
+                return;
+            }
+
+            if (!physicsQueryService.TryRaycast(
+                    centerRay,
+                    aimRange,
+                    groundMask,
+                    out RaycastHit groundHit,
+                    QueryTriggerInteraction.Ignore,
+                    transform))
             {
                 return;
             }
 
             Vector3 aoeCenter = groundHit.point;
-            int overlapCount = Physics.OverlapSphereNonAlloc(
+            int overlapCount = physicsQueryService.OverlapSphereNonAlloc(
                 aoeCenter,
                 radius,
                 overlapBuffer,
@@ -116,8 +134,7 @@ namespace SystemicOverload.Combat
                 }
 
                 float targetDistance = Vector3.Distance(aoeCenter, targetCollider.transform.position);
-                float damageRatio = 1.0f - Mathf.Clamp01(targetDistance / radius);
-                float finalDamage = Mathf.Max(0.0f, maxDamage * damageRatio);
+                float finalDamage = TpsAoeComputation.ComputeRadialDamage(targetDistance, radius, maxDamage);
 
                 DamagePayload payload = new DamagePayload
                 {

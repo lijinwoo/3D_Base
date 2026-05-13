@@ -1,4 +1,5 @@
 using SystemicOverload.Phase1;
+using SystemicOverload.PhysicsQuery;
 using UnityEngine;
 
 namespace SystemicOverload.Interaction
@@ -13,6 +14,7 @@ namespace SystemicOverload.Interaction
         [SerializeField] private float interactDistance = 4.0f;
         [SerializeField] private LayerMask interactMask = ~0;
         [SerializeField] private bool drawDebugRay = true;
+        [SerializeField] private TpsPhysicsQueryService physicsQueryService;
 
         private InputProvider inputProvider;
         private IInteractable currentTarget;
@@ -27,6 +29,12 @@ namespace SystemicOverload.Interaction
             {
                 aimCamera = Camera.main;
             }
+
+            physicsQueryService ??= GetComponent<TpsPhysicsQueryService>();
+            if (physicsQueryService == null)
+            {
+                physicsQueryService = gameObject.AddComponent<TpsPhysicsQueryService>();
+            }
         }
 
         private void OnValidate()
@@ -36,7 +44,8 @@ namespace SystemicOverload.Interaction
 
         private void Update()
         {
-            ScanInteractable();
+            currentTarget = ScanInteractable();
+            UpdatePromptState();
             if (currentTarget == null)
             {
                 return;
@@ -48,42 +57,39 @@ namespace SystemicOverload.Interaction
             }
         }
 
-        private void ScanInteractable()
+        /// <summary>
+        /// 판정 전용: 화면 중앙 Raycast로 상호작용 가능 대상을 반환합니다.
+        /// </summary>
+        private IInteractable ScanInteractable()
         {
-            currentTarget = null;
-
             if (aimCamera == null)
             {
                 aimCamera = Camera.main;
                 if (aimCamera == null)
                 {
-                    return;
+                    return null;
                 }
             }
 
-            Ray centerRay = aimCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
-            if (Physics.Raycast(centerRay, out RaycastHit raycastHit, interactDistance, interactMask, QueryTriggerInteraction.Ignore))
+            if (!TpsAimComputation.TryBuildCenterRay(aimCamera, out Ray centerRay))
+            {
+                return null;
+            }
+
+            if (physicsQueryService.TryRaycast(
+                    centerRay,
+                    interactDistance,
+                    interactMask,
+                    out RaycastHit raycastHit,
+                    QueryTriggerInteraction.Ignore,
+                    transform))
             {
                 if (drawDebugRay)
                 {
                     Debug.DrawRay(centerRay.origin, centerRay.direction * raycastHit.distance, Color.yellow);
                 }
 
-                currentTarget = raycastHit.collider.GetComponentInParent<IInteractable>();
-                if (currentTarget == null)
-                {
-                    lastPrompt = string.Empty;
-                    return;
-                }
-
-                string prompt = currentTarget.GetPrompt();
-                if (!string.IsNullOrEmpty(prompt) && prompt != lastPrompt)
-                {
-                    Debug.Log(prompt);
-                }
-
-                lastPrompt = prompt;
-                return;
+                return raycastHit.collider.GetComponentInParent<IInteractable>();
             }
 
             if (drawDebugRay)
@@ -91,7 +97,27 @@ namespace SystemicOverload.Interaction
                 Debug.DrawRay(centerRay.origin, centerRay.direction * interactDistance, Color.white);
             }
 
-            lastPrompt = string.Empty;
+            return null;
+        }
+
+        /// <summary>
+        /// 연산/표시 전용: 프롬프트 변경을 감지해 출력 상태를 갱신합니다.
+        /// </summary>
+        private void UpdatePromptState()
+        {
+            if (currentTarget == null)
+            {
+                lastPrompt = string.Empty;
+                return;
+            }
+
+            string prompt = currentTarget.GetPrompt();
+            if (!string.IsNullOrEmpty(prompt) && prompt != lastPrompt)
+            {
+                Debug.Log(prompt);
+            }
+
+            lastPrompt = prompt;
         }
     }
 }

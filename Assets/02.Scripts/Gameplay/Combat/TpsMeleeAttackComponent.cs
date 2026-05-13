@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using SystemicOverload.Phase1;
+using SystemicOverload.PhysicsQuery;
 using UnityEngine;
 
 namespace SystemicOverload.Combat
@@ -16,6 +17,7 @@ namespace SystemicOverload.Combat
         [SerializeField] private float damage = 15.0f;
         [SerializeField] private float cooldown = 0.5f;
         [SerializeField] private LayerMask enemyMask = ~0;
+        [SerializeField] private TpsPhysicsQueryService physicsQueryService;
 
         private readonly HashSet<IDamageable> damagedTargets = new HashSet<IDamageable>();
         private InputProvider inputProvider;
@@ -24,6 +26,12 @@ namespace SystemicOverload.Combat
         private void Awake()
         {
             inputProvider = GetComponent<InputProvider>();
+            physicsQueryService ??= GetComponent<TpsPhysicsQueryService>();
+            if (physicsQueryService == null)
+            {
+                physicsQueryService = gameObject.AddComponent<TpsPhysicsQueryService>();
+            }
+
             EnsureAttackPoint();
         }
 
@@ -54,7 +62,7 @@ namespace SystemicOverload.Combat
         {
             EnsureAttackPoint();
             Vector3 center = attackPoint != null ? attackPoint.position : transform.position + transform.forward * attackPointForwardOffset;
-            Collider[] hitColliders = Physics.OverlapSphere(center, radius, enemyMask, QueryTriggerInteraction.Ignore);
+            Collider[] hitColliders = physicsQueryService.OverlapSphere(center, radius, enemyMask, QueryTriggerInteraction.Ignore);
 
             damagedTargets.Clear();
             int hitCount = 0;

@@ -112,3 +112,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   currentHealth: 100
+  enemyDefinition: {fileID: 11400000, guid: b4cb6e17f7f1450682eaa7d59cbb7f70, type: 2}
+  useDefinitionData: 1

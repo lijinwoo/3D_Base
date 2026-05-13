@@ -1,3 +1,4 @@
+using SystemicOverload.PhysicsQuery;
 using UnityEngine;
 
 namespace SystemicOverload.Phase1
@@ -15,6 +16,7 @@ namespace SystemicOverload.Phase1
         [SerializeField] private float safetyDistance = 0.1f;
         [SerializeField] private LayerMask obstacleMask = ~0;
         [SerializeField] private bool useCameraForward = true;
+        [SerializeField] private TpsPhysicsQueryService physicsQueryService;
 
         private CharacterController characterController;
         private InputProvider inputProvider;
@@ -27,6 +29,12 @@ namespace SystemicOverload.Phase1
             if (aimCamera == null)
             {
                 aimCamera = Camera.main;
+            }
+
+            physicsQueryService ??= GetComponent<TpsPhysicsQueryService>();
+            if (physicsQueryService == null)
+            {
+                physicsQueryService = gameObject.AddComponent<TpsPhysicsQueryService>();
             }
         }
 
@@ -65,15 +73,16 @@ namespace SystemicOverload.Phase1
             GetCapsulePoints(out Vector3 capsulePointTop, out Vector3 capsulePointBottom, out float capsuleRadius);
 
             float moveDistance = dashDistance;
-            if (Physics.CapsuleCast(
+            if (physicsQueryService.TryCapsuleCast(
                     capsulePointTop,
                     capsulePointBottom,
                     capsuleRadius,
                     dashDirection,
-                    out RaycastHit hitInfo,
                     dashDistance,
                     obstacleMask,
-                    QueryTriggerInteraction.Ignore))
+                    out RaycastHit hitInfo,
+                    QueryTriggerInteraction.Ignore,
+                    transform))
             {
                 moveDistance = Mathf.Max(0.0f, hitInfo.distance - safetyDistance);
                 Debug.DrawRay(transform.position, dashDirection * hitInfo.distance, Color.red, 0.5f);
