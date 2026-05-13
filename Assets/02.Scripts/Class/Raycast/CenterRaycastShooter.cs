@@ -1,92 +1,173 @@
-using NUnit.Framework.Constraints;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class CenterRaycastShooter : MonoBehaviour
 {
+    private enum AimDirectionMode
+    {
+        CameraCenter,
+        CharacterForward
+    }
+
     [Header("Raycast")]
-    //카메라 (화면)의 중점에서 Ray 쏘고자 함-> 카메라를 알아야함
-    [SerializeField]
-    private Camera m_cam;
-    //Ray 에 필터링될 영역 (LayerMask)
-    [SerializeField]
-    private LayerMask m_hittableMask;
-    //Ray-> 최대거리
-    [SerializeField]
-    private float m_maxDistance = 100.0f;
+    [SerializeField] private Camera m_cam;
+    [SerializeField] private LayerMask m_hittableMask = ~0;
+    [SerializeField] private float m_maxDistance = 100.0f;
+    [SerializeField] private AimDirectionMode m_aimDirectionMode = AimDirectionMode.CharacterForward;
+    [SerializeField] private float m_forwardRayOriginHeight = 1.2f;
+
+    [Header("SphereCast")]
+    [SerializeField] private float m_sphereRadius = 2.0f;
+    [SerializeField] private float m_sphereMaxDistance = 10.0f;
+
+    [Header("Debug")]
+    [SerializeField] private bool m_drawDebugRay = true;
+    [SerializeField] private bool m_drawGizmos = true;
 
     private PlayerInput _pi;
     private InputAction _fire;
+    private Vector3 _lastRayOrigin;
+    private Vector3 _lastRayDirection = Vector3.forward;
+    private float _lastRayDistance;
+    private bool _hasRaySample;
+    private Vector3 _lastSphereOrigin;
+    private Vector3 _lastSphereDirection = Vector3.forward;
+    private float _lastSphereDistance;
+    private bool _hasSphereSample;
 
 
     private void Awake()
     {
         _pi = GetComponent<PlayerInput>();
-        _fire = _pi.actions.FindAction("Fire", true);
+        if (_pi != null)
+        {
+            _fire = _pi.actions.FindAction("Fire", false);
+        }
 
-        if (m_cam == null) m_cam = Camera.main;
+        if (m_cam == null)
+        {
+            m_cam = Camera.main;
+        }
     }
 
     private void OnEnable()
     {
-        _fire.performed += OnRayFire;
+        if (_fire != null)
+        {
+            _fire.performed += OnRayFire;
+        }
     }
 
     private void OnDisable()
     {
-        _fire.performed -= OnRayFire;
+        if (_fire != null)
+        {
+            _fire.performed -= OnRayFire;
+        }
     }
 
 
-    //마우스 왼쪽 '클릭' _fire -> 등록 (bind)
     private void OnRayFire(InputAction.CallbackContext _)
     {
-        // 화면중앙(카메라) 
-        Vector2 _screenCenter = new(Screen.width * 0.5f, Screen.height * 0.5f);
-
-        // Ray 클래스 -? 
-        Ray _ray = m_cam.ScreenPointToRay(_screenCenter);
-
-
-        //QueryTriggerInteraction : 트리거 Collider는 무시
-        if (Physics.Raycast(_ray, out RaycastHit hit, m_maxDistance, m_hittableMask))
+        if (!TryBuildAimRay(out Ray ray))
         {
-            // Ray 가 어떤 오브젝트에 맞았을 때 로그 출력 
+            return;
+        }
+
+        if (Physics.Raycast(ray, out RaycastHit hit, m_maxDistance, m_hittableMask, QueryTriggerInteraction.Ignore))
+        {
             Debug.Log($"[CenterRaycastShooter] Hit {hit.collider.name} at {hit.point}");
-
-
-            // Renderer rend = hit.collider.GetComponent<Renderer>();
-            // if (rend) rend.material.color = Color.red;
-
-            Debug.DrawLine(_ray.origin, hit.point, Color.green, 1.0f);
+            if (m_drawDebugRay)
+            {
+                Debug.DrawLine(ray.origin, hit.point, Color.green, 1.0f);
+            }
+            _lastRayDistance = hit.distance;
         }
         else
         {
-            Debug.DrawLine(_ray.origin, _ray.direction * m_maxDistance, Color.yellow, 0.5f);
+            if (m_drawDebugRay)
+            {
+                Debug.DrawLine(ray.origin, ray.origin + ray.direction * m_maxDistance, Color.yellow, 0.5f);
+            }
+            _lastRayDistance = m_maxDistance;
         }
 
+        _lastRayOrigin = ray.origin;
+        _lastRayDirection = ray.direction;
+        _hasRaySample = true;
         SphereCastExample();
     }
 
 
     void SphereCastExample()
     {
-        float radius = 2.0f;// 구체 반지름 
-        float maxDistance = 10.0f;
+        if (!TryBuildAimRay(out Ray ray))
+        {
+            return;
+        }
 
-        Vector3 origin = transform.position;
-        Vector3 direction = transform.forward;
-
-        if (Physics.SphereCast(origin, radius, direction, out RaycastHit hit, maxDistance, m_hittableMask))
+        if (Physics.SphereCast(ray.origin, m_sphereRadius, ray.direction, out RaycastHit hit, m_sphereMaxDistance, m_hittableMask, QueryTriggerInteraction.Ignore))
         {
             Debug.Log($"Sphere Hit {hit.collider.name}");
+            _lastSphereDistance = hit.distance;
+        }
+        else
+        {
+            _lastSphereDistance = m_sphereMaxDistance;
+        }
+
+        _lastSphereOrigin = ray.origin;
+        _lastSphereDirection = ray.direction;
+        _hasSphereSample = true;
+    }
+
+    private bool TryBuildAimRay(out Ray ray)
+    {
+        ray = default;
+        if (m_aimDirectionMode == AimDirectionMode.CameraCenter)
+        {
+            if (m_cam == null)
+            {
+                m_cam = Camera.main;
+                if (m_cam == null)
+                {
+                    return false;
+                }
+            }
+
+            Vector2 screenCenter = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+            ray = m_cam.ScreenPointToRay(screenCenter);
+            return true;
+        }
+
+        Vector3 forwardOrigin = transform.position + Vector3.up * m_forwardRayOriginHeight;
+        ray = new Ray(forwardOrigin, transform.forward);
+        return true;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (!m_drawGizmos)
+        {
+            return;
+        }
+
+        if (_hasRaySample)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(_lastRayOrigin, _lastRayOrigin + _lastRayDirection * _lastRayDistance);
+        }
+
+        if (_hasSphereSample)
+        {
+            Vector3 endPoint = _lastSphereOrigin + _lastSphereDirection * _lastSphereDistance;
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(_lastSphereOrigin, m_sphereRadius);
+            Gizmos.DrawWireSphere(endPoint, m_sphereRadius);
+            Gizmos.DrawLine(_lastSphereOrigin, endPoint);
         }
     }
 
-
-    //즉발 장판기 
-    //결과값을, Collider를 복수개 배열로 반환 
-    //private Collider[];
 
     void OverlapExample(Vector3 centerPostion)
     {
@@ -101,7 +182,6 @@ public class CenterRaycastShooter : MonoBehaviour
         }
     }
 
-    //성능 최적화 - Overlap (방어코드 개념)
     private Collider[] results = new Collider[10];
 
     void OptimizedOverlap()

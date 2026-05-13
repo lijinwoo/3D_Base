@@ -18,10 +18,15 @@ namespace SystemicOverload.Combat
         [SerializeField] private float rayOriginHeight = 1.0f;
         [SerializeField] private float rayStartForwardOffset = 0.35f;
         [SerializeField] private LayerMask hitLayerMask = ~0;
+        [SerializeField] private float cameraAimRayMaxDistance = 200.0f;
+        [SerializeField] private float muzzleAimPaddingDistance = 0.1f;
+        [SerializeField] private bool drawDebugRay = true;
 
         [Header("References")]
         [SerializeField] private MovementComponent movementComponent;
         [SerializeField] private Animator animator;
+        [SerializeField] private Camera aimCamera;
+        [SerializeField] private Transform muzzlePoint;
 
         private InputProvider inputProvider;
         private float nextAllowedShotTime;
@@ -39,6 +44,8 @@ namespace SystemicOverload.Combat
             damage = Mathf.Max(0.0f, damage);
             shotsPerSecond = Mathf.Max(0.01f, shotsPerSecond);
             maxRange = Mathf.Max(0.1f, maxRange);
+            cameraAimRayMaxDistance = Mathf.Max(0.1f, cameraAimRayMaxDistance);
+            muzzleAimPaddingDistance = Mathf.Max(0.0f, muzzleAimPaddingDistance);
         }
 
         private void Update()
@@ -61,22 +68,39 @@ namespace SystemicOverload.Combat
         }
 
         /// <summary>
-        /// 히트 스캔 한 발을 수행하고, 맞은 대상에 <see cref="IDamageable"/> 데미지를 적용합니다.
+        /// TPS 정석 2-Step Raycast를 수행합니다.
+        /// 1) Camera center Ray로 조준점을 확정하고
+        /// 2) 실제 발사점(Muzzle)에서 조준점 방향으로 다시 Raycast해 최종 피격을 결정합니다.
         /// </summary>
         private void TryFireHitScan()
         {
-            Vector3 origin = transform.position + Vector3.up * rayOriginHeight + transform.forward * rayStartForwardOffset;
-            Vector3 direction = ResolveFireDirection();
-            if (direction.sqrMagnitude < 0.0001f)
+            if (!TryResolveCameraRay(out Ray cameraRay))
             {
-                direction = transform.forward;
-            }
-            else
-            {
-                direction.Normalize();
+                return;
             }
 
-            if (!Physics.Raycast(origin, direction, out RaycastHit hitInfo, maxRange, hitLayerMask, QueryTriggerInteraction.Ignore))
+            Vector3 step1AimPoint = ResolveCameraAimPoint(cameraRay);
+            Vector3 muzzleOrigin = ResolveMuzzleOrigin();
+            Vector3 muzzleToAim = step1AimPoint - muzzleOrigin;
+            if (muzzleToAim.sqrMagnitude < 0.0001f)
+            {
+                muzzleToAim = transform.forward;
+            }
+
+            Vector3 step2Direction = muzzleToAim.normalized;
+            float step2Distance = Mathf.Min(maxRange, muzzleToAim.magnitude + muzzleAimPaddingDistance);
+            if (step2Distance <= 0.0001f)
+            {
+                step2Distance = maxRange;
+            }
+
+            if (drawDebugRay)
+            {
+                Debug.DrawRay(cameraRay.origin, cameraRay.direction * maxRange, Color.yellow, 0.2f);
+                Debug.DrawRay(muzzleOrigin, step2Direction * step2Distance, Color.cyan, 0.2f);
+            }
+
+            if (!Physics.Raycast(muzzleOrigin, step2Direction, out RaycastHit hitInfo, step2Distance, hitLayerMask, QueryTriggerInteraction.Ignore))
             {
                 return;
             }
@@ -98,21 +122,49 @@ namespace SystemicOverload.Combat
                 Attacker = transform
             };
             damageable.ApplyDamage(in payload);
+
+            if (drawDebugRay)
+            {
+                Debug.DrawLine(muzzleOrigin, hitInfo.point, Color.green, 0.25f);
+            }
         }
 
-        private Vector3 ResolveFireDirection()
+        private bool TryResolveCameraRay(out Ray cameraRay)
         {
-            if (movementComponent != null)
+            cameraRay = default;
+            Camera targetCamera = aimCamera;
+            if (targetCamera == null)
             {
-                Vector3 toAim = movementComponent.LastAimPoint - transform.position;
-                toAim.y = 0.0f;
-                if (toAim.sqrMagnitude > 0.0001f)
-                {
-                    return toAim.normalized;
-                }
+                targetCamera = Camera.main;
             }
 
-            return transform.forward;
+            if (targetCamera == null)
+            {
+                return false;
+            }
+
+            cameraRay = targetCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
+            return true;
+        }
+
+        private Vector3 ResolveCameraAimPoint(Ray cameraRay)
+        {
+            if (Physics.Raycast(cameraRay, out RaycastHit cameraHit, cameraAimRayMaxDistance, hitLayerMask, QueryTriggerInteraction.Ignore))
+            {
+                return cameraHit.point;
+            }
+
+            return cameraRay.origin + cameraRay.direction * maxRange;
+        }
+
+        private Vector3 ResolveMuzzleOrigin()
+        {
+            if (muzzlePoint != null)
+            {
+                return muzzlePoint.position;
+            }
+
+            return transform.position + Vector3.up * rayOriginHeight + transform.forward * rayStartForwardOffset;
         }
 
         private void TrySetAttackTrigger()

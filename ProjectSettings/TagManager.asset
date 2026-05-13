@@ -14,10 +14,10 @@ TagManager:
   - UI
   - 
   - RaycastFilterTest
-  - 
-  - 
-  - 
-  - 
+  - Enemy
+  - Interactable
+  - Obstacle
+  - Ground
   - 
   - 
   - 

@@ -28,8 +28,8 @@ namespace SystemicOverload.Phase1
             Other
         }
 
-        private const string DefaultActionAssetResourcesPath = "Input/Phase1Gameplay";
-        private const string DefaultActionAssetEditorPath = "Assets/Resources/Input/Phase1Gameplay.inputactions";
+        private const string DefaultActionAssetResourcesPath = "";
+        private const string DefaultActionAssetEditorPath = "Assets/00.Preset/MainInputActionData.inputactions";
         private const string GameplayMapName = "Player";
         private const string MoveActionName = "Move";
         private const string LookActionName = "Look";
@@ -37,7 +37,12 @@ namespace SystemicOverload.Phase1
         private const string ZoomActionName = "Zoom";
         private const string PrimaryHoldActionName = "PrimaryHold";
         private const string SecondaryHoldActionName = "SecondaryHold";
-        private const string AttackActionName = "Attack";
+        private const string AttackActionName = "Fire";
+        private const string InteractActionName = "Interact";
+        private const string MeleeActionName = "Melee";
+        private const string MagicActionName = "Magic";
+        private const string AoeActionName = "Aoe";
+        private const string DashActionName = "Dash";
 
         [Header("Action Asset")]
         [SerializeField] private InputActionAsset inputActionsAsset;
@@ -60,6 +65,11 @@ namespace SystemicOverload.Phase1
         private InputAction primaryHoldAction;
         private InputAction secondaryHoldAction;
         private InputAction attackAction;
+        private InputAction interactAction;
+        private InputAction meleeAction;
+        private InputAction magicAction;
+        private InputAction aoeAction;
+        private InputAction dashAction;
         private bool callbacksBound;
         private bool initializationFailed;
 
@@ -89,6 +99,31 @@ namespace SystemicOverload.Phase1
         /// </summary>
         public bool WasAttackPressedThisFrame { get; private set; }
 
+        /// <summary>
+        /// 이번 프레임에 상호작용 입력(E)이 눌렸는지 여부입니다.
+        /// </summary>
+        public bool WasInteractPressedThisFrame { get; private set; }
+
+        /// <summary>
+        /// 이번 프레임에 근접 공격 입력(F)이 눌렸는지 여부입니다.
+        /// </summary>
+        public bool WasMeleePressedThisFrame { get; private set; }
+
+        /// <summary>
+        /// 이번 프레임에 마법 입력(Q)이 눌렸는지 여부입니다.
+        /// </summary>
+        public bool WasMagicPressedThisFrame { get; private set; }
+
+        /// <summary>
+        /// 이번 프레임에 광역 스킬 입력(R)이 눌렸는지 여부입니다.
+        /// </summary>
+        public bool WasAoePressedThisFrame { get; private set; }
+
+        /// <summary>
+        /// 이번 프레임에 대시 입력(LeftShift)이 눌렸는지 여부입니다.
+        /// </summary>
+        public bool WasDashPressedThisFrame { get; private set; }
+
         private void Reset()
         {
             TryAssignDefaultAssetInEditor();
@@ -98,11 +133,6 @@ namespace SystemicOverload.Phase1
         {
             dualMouseForwardAmount = Mathf.Max(0.0f, dualMouseForwardAmount);
             gamepadLookDeadzone = Mathf.Clamp01(gamepadLookDeadzone);
-            if (string.IsNullOrWhiteSpace(resourcesFallbackPath))
-            {
-                resourcesFallbackPath = DefaultActionAssetResourcesPath;
-            }
-
             TryAssignDefaultAssetInEditor();
         }
 
@@ -148,6 +178,15 @@ namespace SystemicOverload.Phase1
             }
         }
 
+        /// <summary>
+        /// 외부에서 사용할 InputActionAsset을 명시적으로 설정합니다.
+        /// </summary>
+        public void SetInputActionsAsset(InputActionAsset targetAsset)
+        {
+            inputActionsAsset = targetAsset;
+            initializationFailed = false;
+        }
+
         private bool EnsureInputActionsInitialized()
         {
             if (runtimeInputActions != null)
@@ -172,16 +211,41 @@ namespace SystemicOverload.Phase1
             gameplayMap = runtimeInputActions.FindActionMap(GameplayMapName, true);
             moveAction = gameplayMap.FindAction(MoveActionName, true);
             lookAction = gameplayMap.FindAction(LookActionName, true);
-            pointerPositionAction = gameplayMap.FindAction(PointerPositionActionName, true);
-            zoomAction = gameplayMap.FindAction(ZoomActionName, true);
-            primaryHoldAction = gameplayMap.FindAction(PrimaryHoldActionName, true);
-            secondaryHoldAction = gameplayMap.FindAction(SecondaryHoldActionName, true);
+            pointerPositionAction = gameplayMap.FindAction(PointerPositionActionName, false);
+            zoomAction = gameplayMap.FindAction(ZoomActionName, false);
+            primaryHoldAction = gameplayMap.FindAction(PrimaryHoldActionName, false);
+            secondaryHoldAction = gameplayMap.FindAction(SecondaryHoldActionName, false);
             attackAction = gameplayMap.FindAction(AttackActionName, false);
+            interactAction = gameplayMap.FindAction(InteractActionName, false);
+            meleeAction = gameplayMap.FindAction(MeleeActionName, false);
+            magicAction = gameplayMap.FindAction(MagicActionName, false);
+            aoeAction = gameplayMap.FindAction(AoeActionName, false);
+            dashAction = gameplayMap.FindAction(DashActionName, false);
             if (attackAction == null)
             {
                 Debug.LogWarning(
-                    $"InputProvider: '{AttackActionName}' 액션을 찾을 수 없습니다. Phase1Gameplay.inputactions를 갱신했는지 확인하세요.",
+                    $"InputProvider: '{AttackActionName}' 액션을 찾을 수 없습니다. MainInputActionData.inputactions를 확인하세요.",
                     this);
+            }
+            if (interactAction == null)
+            {
+                Debug.LogWarning($"InputProvider: '{InteractActionName}' 액션을 찾을 수 없습니다.", this);
+            }
+            if (meleeAction == null)
+            {
+                Debug.LogWarning($"InputProvider: '{MeleeActionName}' 액션을 찾을 수 없습니다.", this);
+            }
+            if (magicAction == null)
+            {
+                Debug.LogWarning($"InputProvider: '{MagicActionName}' 액션을 찾을 수 없습니다.", this);
+            }
+            if (aoeAction == null)
+            {
+                Debug.LogWarning($"InputProvider: '{AoeActionName}' 액션을 찾을 수 없습니다.", this);
+            }
+            if (dashAction == null)
+            {
+                Debug.LogWarning($"InputProvider: '{DashActionName}' 액션을 찾을 수 없습니다.", this);
             }
 
             return true;
@@ -196,13 +260,45 @@ namespace SystemicOverload.Phase1
 
             moveAction.performed += OnGameplayActionPerformed;
             lookAction.performed += OnGameplayActionPerformed;
-            pointerPositionAction.performed += OnGameplayActionPerformed;
-            zoomAction.performed += OnGameplayActionPerformed;
-            primaryHoldAction.performed += OnGameplayActionPerformed;
-            secondaryHoldAction.performed += OnGameplayActionPerformed;
+            if (pointerPositionAction != null)
+            {
+                pointerPositionAction.performed += OnGameplayActionPerformed;
+            }
+            if (zoomAction != null)
+            {
+                zoomAction.performed += OnGameplayActionPerformed;
+            }
+            if (primaryHoldAction != null)
+            {
+                primaryHoldAction.performed += OnGameplayActionPerformed;
+            }
+            if (secondaryHoldAction != null)
+            {
+                secondaryHoldAction.performed += OnGameplayActionPerformed;
+            }
             if (attackAction != null)
             {
                 attackAction.performed += OnGameplayActionPerformed;
+            }
+            if (interactAction != null)
+            {
+                interactAction.performed += OnGameplayActionPerformed;
+            }
+            if (meleeAction != null)
+            {
+                meleeAction.performed += OnGameplayActionPerformed;
+            }
+            if (magicAction != null)
+            {
+                magicAction.performed += OnGameplayActionPerformed;
+            }
+            if (aoeAction != null)
+            {
+                aoeAction.performed += OnGameplayActionPerformed;
+            }
+            if (dashAction != null)
+            {
+                dashAction.performed += OnGameplayActionPerformed;
             }
 
             callbacksBound = true;
@@ -218,13 +314,45 @@ namespace SystemicOverload.Phase1
 
             moveAction.performed -= OnGameplayActionPerformed;
             lookAction.performed -= OnGameplayActionPerformed;
-            pointerPositionAction.performed -= OnGameplayActionPerformed;
-            zoomAction.performed -= OnGameplayActionPerformed;
-            primaryHoldAction.performed -= OnGameplayActionPerformed;
-            secondaryHoldAction.performed -= OnGameplayActionPerformed;
+            if (pointerPositionAction != null)
+            {
+                pointerPositionAction.performed -= OnGameplayActionPerformed;
+            }
+            if (zoomAction != null)
+            {
+                zoomAction.performed -= OnGameplayActionPerformed;
+            }
+            if (primaryHoldAction != null)
+            {
+                primaryHoldAction.performed -= OnGameplayActionPerformed;
+            }
+            if (secondaryHoldAction != null)
+            {
+                secondaryHoldAction.performed -= OnGameplayActionPerformed;
+            }
             if (attackAction != null)
             {
                 attackAction.performed -= OnGameplayActionPerformed;
+            }
+            if (interactAction != null)
+            {
+                interactAction.performed -= OnGameplayActionPerformed;
+            }
+            if (meleeAction != null)
+            {
+                meleeAction.performed -= OnGameplayActionPerformed;
+            }
+            if (magicAction != null)
+            {
+                magicAction.performed -= OnGameplayActionPerformed;
+            }
+            if (aoeAction != null)
+            {
+                aoeAction.performed -= OnGameplayActionPerformed;
+            }
+            if (dashAction != null)
+            {
+                dashAction.performed -= OnGameplayActionPerformed;
             }
 
             callbacksBound = false;
@@ -237,21 +365,40 @@ namespace SystemicOverload.Phase1
 
         private void SampleActions()
         {
-            IsPrimaryHeld = primaryHoldAction.IsPressed();
-            IsSecondaryHeld = secondaryHoldAction.IsPressed();
+            // MainInputActionData에 Hold 액션이 없을 수 있으므로 New Input System 디바이스 입력으로 보완합니다.
+            IsPrimaryHeld = primaryHoldAction != null
+                ? primaryHoldAction.IsPressed()
+                : (Mouse.current != null && Mouse.current.leftButton.isPressed);
+            IsSecondaryHeld = secondaryHoldAction != null
+                ? secondaryHoldAction.IsPressed()
+                : (Mouse.current != null && Mouse.current.rightButton.isPressed);
 
             RawMoveInput = moveAction.ReadValue<Vector2>();
             MoveInput = ApplyDualMouseForward(PrepareMoveInput(RawMoveInput));
 
-            Vector2 pointerPosition = pointerPositionAction.ReadValue<Vector2>();
+            Vector2 pointerPosition = pointerPositionAction != null
+                ? pointerPositionAction.ReadValue<Vector2>()
+                : (Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero);
             PointerScreenPosition = pointerPosition.sqrMagnitude > 0.0f
                 ? pointerPosition
                 : new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
 
             LookInput = lookAction.ReadValue<Vector2>();
             CurrentLookDeviceKind = ClassifyLookDevice(lookAction.activeControl?.device);
-            ZoomDelta = zoomAction.ReadValue<float>();
+            ZoomDelta = zoomAction != null
+                ? zoomAction.ReadValue<float>()
+                : (Mouse.current != null ? Mouse.current.scroll.ReadValue().y * 0.01f : 0.0f);
             WasAttackPressedThisFrame = attackAction != null && attackAction.WasPressedThisFrame();
+            WasInteractPressedThisFrame = (interactAction != null && interactAction.WasPressedThisFrame())
+                || (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame);
+            WasMeleePressedThisFrame = (meleeAction != null && meleeAction.WasPressedThisFrame())
+                || (Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame);
+            WasMagicPressedThisFrame = (magicAction != null && magicAction.WasPressedThisFrame())
+                || (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame);
+            WasAoePressedThisFrame = (aoeAction != null && aoeAction.WasPressedThisFrame())
+                || (Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame);
+            WasDashPressedThisFrame = (dashAction != null && dashAction.WasPressedThisFrame())
+                || (Keyboard.current != null && Keyboard.current.leftShiftKey.wasPressedThisFrame);
         }
 
         private Vector2 PrepareMoveInput(Vector2 sourceMoveInput)
@@ -292,6 +439,11 @@ namespace SystemicOverload.Phase1
             LastUsedDeviceKind = ControlDeviceKind.None;
             CurrentLookDeviceKind = LookDeviceKind.None;
             WasAttackPressedThisFrame = false;
+            WasInteractPressedThisFrame = false;
+            WasMeleePressedThisFrame = false;
+            WasMagicPressedThisFrame = false;
+            WasAoePressedThisFrame = false;
+            WasDashPressedThisFrame = false;
         }
 
         private InputActionAsset ResolveSourceAsset()
