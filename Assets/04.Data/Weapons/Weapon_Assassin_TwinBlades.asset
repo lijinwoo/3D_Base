@@ -10,22 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 144cf3bac205ddc41bb072f60cab3e11, type: 3}
-  m_Name: Weapon_FireStaff
+  m_Name: Weapon_Assassin_TwinBlades
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
-  weaponId: mage_fire_staff
-  weaponName: Fire Staff
-  jobClassType: 2
-  weaponType: 3
+  weaponId: assassin_twin_blades
+  weaponName: Twin Blades
+  jobClassType: 3
+  weaponType: 4
   icon: {fileID: 0}
-  damage: 31
-  attackRange: 18
-  attackRate: 1.1
-  criticalChance: 0.22
+  damage: 23
+  attackRange: 1.9
+  attackRate: 2.8
+  criticalChance: 0.2
   criticalMultiplier: 1.5
   magazineSize: 0
   reloadTime: 0
   useAmmo: 0
-  isMelee: 0
+  isMelee: 1
   weaponPrefab: {fileID: 0}
   projectilePrefab: {fileID: 0}
   fireEffect: {fileID: 0}

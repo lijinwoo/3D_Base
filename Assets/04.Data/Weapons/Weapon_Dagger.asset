@@ -12,18 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 144cf3bac205ddc41bb072f60cab3e11, type: 3}
   m_Name: Weapon_Dagger
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
-  weaponId: 
-  weaponName: 
-  weaponType: 0
+  weaponId: assassin_shadow_dagger
+  weaponName: Shadow Dagger
+  jobClassType: 3
+  weaponType: 4
   icon: {fileID: 0}
-  damage: 0
-  attackRange: 0
-  attackRate: 0
-  criticalChance: 0
+  damage: 26
+  attackRange: 1.8
+  attackRate: 2.4
+  criticalChance: 0.25
   criticalMultiplier: 1.5
   magazineSize: 0
   reloadTime: 0
   useAmmo: 0
+  isMelee: 1
   weaponPrefab: {fileID: 0}
   projectilePrefab: {fileID: 0}
   fireEffect: {fileID: 0}

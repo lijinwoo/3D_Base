@@ -10,21 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 144cf3bac205ddc41bb072f60cab3e11, type: 3}
-  m_Name: Weapon_FireStaff
+  m_Name: Weapon_Archer_Crossbow
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
-  weaponId: mage_fire_staff
-  weaponName: Fire Staff
-  jobClassType: 2
-  weaponType: 3
+  weaponId: archer_crossbow
+  weaponName: Crossbow
+  jobClassType: 0
+  weaponType: 1
   icon: {fileID: 0}
-  damage: 31
-  attackRange: 18
-  attackRate: 1.1
-  criticalChance: 0.22
+  damage: 30
+  attackRange: 20
+  attackRate: 1
+  criticalChance: 0.16
   criticalMultiplier: 1.5
-  magazineSize: 0
-  reloadTime: 0
-  useAmmo: 0
+  magazineSize: 1
+  reloadTime: 1.8
+  useAmmo: 1
   isMelee: 0
   weaponPrefab: {fileID: 0}
   projectilePrefab: {fileID: 0}

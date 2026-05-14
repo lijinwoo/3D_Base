@@ -9,6 +9,7 @@ public class WeaponData : ScriptableObject
     [Header("기본 정보")]
     public string weaponId;
     public string weaponName;
+    public JobClassType jobClassType;
     public WeaponType weaponType;
     public Sprite icon;
 
@@ -23,6 +24,7 @@ public class WeaponData : ScriptableObject
     public int magazineSize;
     public float reloadTime;
     public bool useAmmo;
+    public bool isMelee;
 
     [Header("프리팹 및 이펙트")]
     public GameObject weaponPrefab;
