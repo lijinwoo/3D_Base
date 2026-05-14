@@ -22,3 +22,6 @@ MonoBehaviour:
   canUse: 1
   canStack: 1
   maxStackCount: 99
+  effects:
+  - effectType: 1
+    value: 100
