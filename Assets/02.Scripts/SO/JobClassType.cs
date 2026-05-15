@@ -6,3 +6,4 @@ public enum JobClassType
     Assassin,
     Gunner
 }
+
