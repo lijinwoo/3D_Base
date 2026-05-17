@@ -775,6 +775,133 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ca602005fe51f4b44bbfe5008a2b69e5, type: 3}
+--- !u!1 &1069308371 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2382042618217154365, guid: f76eb0952e47ce641bc6ace881cd9b52, type: 3}
+  m_PrefabInstance: {fileID: 1238258842}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1069308373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1069308371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 897d981bd82c6df439d2eea72eb72405, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStatus
+  currentJobClass: 0
+  maxHp: 100
+  currentHp: 50
+  maxMp: 50
+  currentMp: 10
+  attack: 10
+  defense: 5
+  gold: 0
+--- !u!114 &1069308374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1069308371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12942058b52b7a042a05dbd65a63a19f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerWeaponController
+  weapons:
+  - {fileID: 11400000, guid: 0f1fa93ddc1fc054aa237fcd94851614, type: 2}
+  - {fileID: 11400000, guid: 80c02e146173f7a4d8d602c4d8cfc251, type: 2}
+  - {fileID: 11400000, guid: 9c4e49a5eaba0194094dbc4124f09e40, type: 2}
+  playerStatus: {fileID: 0}
+  equipWeapon1Action:
+    m_Name: EquipWeapon1
+    m_Type: 1
+    m_ExpectedControlType: 
+    m_Id: 9b260714-318c-4daa-a3fe-b9b5d3414107
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 817c0bdb-d3d1-4cb4-b0bc-fb26e094ab03
+      m_Path: <Keyboard>/1
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: EquipWeapon1
+      m_Flags: 0
+    m_Flags: 0
+  equipWeapon2Action:
+    m_Name: EquipWeapon2
+    m_Type: 1
+    m_ExpectedControlType: 
+    m_Id: 98c88fb6-9c55-4ad8-8368-33d1fb2c855f
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 8a1c6765-9c4f-44e3-a595-5154599448c0
+      m_Path: <Keyboard>/2
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: EquipWeapon2
+      m_Flags: 0
+    m_Flags: 0
+  equipWeapon3Action:
+    m_Name: EquipWeapon3
+    m_Type: 1
+    m_ExpectedControlType: 
+    m_Id: 33a1b741-8055-48c1-bbc8-7c780b2131ef
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 9e04a0f1-9ddb-4ea9-a058-30f1ba55ef61
+      m_Path: <Keyboard>/3
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: EquipWeapon3
+      m_Flags: 0
+    m_Flags: 0
+  attackAction:
+    m_Name: Attack
+    m_Type: 1
+    m_ExpectedControlType: 
+    m_Id: 55034aca-b105-42d7-bce8-bf15da44fd3b
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 4bffa4c6-21c2-4a53-aebb-192dfeb645d3
+      m_Path: <Mouse>/leftButton
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Attack
+      m_Flags: 0
+    m_Flags: 0
+  reloadAction:
+    m_Name: Reload
+    m_Type: 1
+    m_ExpectedControlType: 
+    m_Id: 0b54d61e-d2a3-4b69-9067-258e28708847
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 1082fe63-978f-4070-8ebe-e3aafc65117e
+      m_Path: <Keyboard>/r
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Reload
+      m_Flags: 0
+    m_Flags: 0
 --- !u!1 &1160234425
 GameObject:
   m_ObjectHideFlags: 0
@@ -959,7 +1086,13 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2382042618217154365, guid: f76eb0952e47ce641bc6ace881cd9b52, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1069308374}
+    - targetCorrespondingSourceObject: {fileID: 2382042618217154365, guid: f76eb0952e47ce641bc6ace881cd9b52, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1069308373}
   m_SourcePrefab: {fileID: 100100000, guid: f76eb0952e47ce641bc6ace881cd9b52, type: 3}
 --- !u!1 &1912275894
 GameObject:

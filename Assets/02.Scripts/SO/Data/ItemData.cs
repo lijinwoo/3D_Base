@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 [CreateAssetMenu(
     fileName = "Item_New",
@@ -26,4 +27,6 @@ public class ItemData : ScriptableObject
     
     [Header("사용 효과")]
     public List<ItemEffect> effects = new List<ItemEffect>();
+
+    public AssetReferenceGameObject  WorldPrefab;
 }

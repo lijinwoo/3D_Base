@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponId: weapon_dagger
   weaponName: Dagger
+  jobClassType: 0
   weaponType: 4
   icon: {fileID: 0}
   damage: 18
@@ -24,7 +25,7 @@ MonoBehaviour:
   magazineSize: 0
   reloadTime: 0
   useAmmo: 0
-  weaponPrefab: {fileID: 0}
+  weaponPrefab: {fileID: 4043241439066821443, guid: 726cd21416e138640a4f2575ffe04009, type: 3}
   porjectilePrefab: {fileID: 0}
   fireEffect: {fileID: 0}
   attackSound: {fileID: 0}

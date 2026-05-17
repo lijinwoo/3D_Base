@@ -2,6 +2,13 @@ using UnityEngine;
 
 public class PlayerStatus : MonoBehaviour
 {
+   [Header("Class")]
+   [SerializeField]
+   JobClassType currentJobClass;
+   
+   public  JobClassType CurrentJobClass { get => currentJobClass; set => currentJobClass = value; }
+   public WeaponData EquippedWeapon { get; set; }
+   
    [Header("HP")]
    public int maxHp = 100;
    public int currentHp = 50;

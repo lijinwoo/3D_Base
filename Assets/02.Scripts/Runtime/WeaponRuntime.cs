@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class WeaponRuntime : MonoBehaviour
+public class WeaponRuntime 
 {
    public WeaponData data;
    public int currentAmmo;

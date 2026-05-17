@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponId: weapon_ironrifle
   weaponName: IronRifle
+  jobClassType: 0
   weaponType: 0
   icon: {fileID: 0}
   damage: 25
@@ -24,7 +25,7 @@ MonoBehaviour:
   magazineSize: 30
   reloadTime: 2
   useAmmo: 1
-  weaponPrefab: {fileID: 0}
+  weaponPrefab: {fileID: 4043241439066821443, guid: 726cd21416e138640a4f2575ffe04009, type: 3}
   porjectilePrefab: {fileID: 0}
   fireEffect: {fileID: 0}
   attackSound: {fileID: 0}

@@ -9,6 +9,7 @@ public class WeaponData : ScriptableObject
     [Header("기본 정보")] 
     public string weaponId;
     public string weaponName;
+    public JobClassType jobClassType;
     public WeaponType weaponType;
     public Sprite icon;
 

@@ -6,3 +6,4 @@ public enum ItemType
     Quest,
     Currency
 }
+
