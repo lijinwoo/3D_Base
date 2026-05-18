@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Monster
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Monster
+  m_GUID: 1ea442bff1fefac4fbf9a5bb09b7153b
+  m_SerializeEntries:
+  - m_GUID: 3616becfe8619a44bb008c0f4ac8cea8
+    m_Address: ItemB
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Consumable
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 44cb5867fc091c8499c713c06632c78d
+    m_Address: ItemA
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Consumable
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b38603d9b2eb512468eafa9af700cac3
+    m_Address: ItemC
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Consumable
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 47d0e36f9791e5849bc67752706a971f, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 1b446c69117610a4bbc8680e1b9696ae, type: 2}
+    - {fileID: 11400000, guid: f19d9ff2c778ba14aa42985e811a4505, type: 2}

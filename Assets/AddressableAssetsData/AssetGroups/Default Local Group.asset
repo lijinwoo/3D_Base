@@ -21,21 +21,6 @@ MonoBehaviour:
     m_SerializedLabels:
     - Weapon
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 879bac24dc1fff844987512aff62aa7e
-    m_Address: Assets/Sci-fi Pistol/Prefabs/Pistol_C.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: c0bcdd476b3f5374780ef191de79f7d3
-    m_Address: Assets/Sci-fi Pistol/Prefabs/Pistol_A.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: f910350248888af45a15a37e607cc6f3
-    m_Address: Assets/Sci-fi Pistol/Prefabs/Pistol_B.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 47d0e36f9791e5849bc67752706a971f, type: 2}
   m_SchemaSet:
