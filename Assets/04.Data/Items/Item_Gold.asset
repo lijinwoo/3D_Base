@@ -22,3 +22,12 @@ MonoBehaviour:
   canUse: 0
   canStack: 1
   maxStackCount: 99
+  effects:
+  - effectType: 0
+    value: -3
+  WorldPrefab:
+    m_AssetGUID: 
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
